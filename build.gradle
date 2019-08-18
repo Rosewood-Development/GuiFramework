@@ -1,0 +1,45 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+apply plugin: 'java'
+
+group 'com.esophose.guiframework'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+
+    maven {
+        url 'http://repo.songoda.com/artifactory/private/'
+    }
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
+dependencies {
+    // Spigot
+    implementation (group: 'org.spigotmc', name: 'spigot', version: '1.14.3')
+
+    // JetBrains Annotations
+    compile (group: 'org.jetbrains', name: 'annotations', version: '13.0')
+}
+
+processResources {
+    from (sourceSets.main.resources.srcDirs) {
+        include '**/*.yml'
+        filter ReplaceTokens, tokens: ["version": project.property("version")]
+    }
+}
+
+jar {
+    configurations.shade.each { dep ->
+        from (project.zipTree(dep)) {
+            exclude '**/*.yml'
+            exclude 'META-INF', 'META-INF/**'
+        }
+    }
+}

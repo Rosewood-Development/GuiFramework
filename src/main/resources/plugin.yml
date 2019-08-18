@@ -1,0 +1,9 @@
+name: GuiFrameworkTest
+main: com.esophose.guiframework.GuiFrameworkTest
+version: @version@
+api-version: 1.13
+description: A unique SkyBlock plugin
+author: Esophose
+commands:
+    gui:
+        description: GuiFramework test command.
