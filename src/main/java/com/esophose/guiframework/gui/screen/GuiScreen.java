@@ -177,7 +177,20 @@ public class GuiScreen implements ITickable {
     }
 
     @Nullable
-    public 
+    public Map<Integer, ItemStack> getEditableContent() {
+        if (this.editableSection == null)
+            return null;
+
+        Map<Integer, ItemStack> content = new HashMap<>();
+
+        this.editableSection.forEach(i -> {
+            ISlotable slotable = this.getSlot(i);
+            if (slotable != null)
+                content.put(i, slotable.getItemStack());
+        });
+
+        return content;
+    }
 
     /**
      * Gets an unmodifyable map of the buttons on the screen.

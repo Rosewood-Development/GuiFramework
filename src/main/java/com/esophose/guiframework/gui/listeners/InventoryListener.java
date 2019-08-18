@@ -2,7 +2,7 @@ package com.esophose.guiframework.gui.listeners;
 
 import com.esophose.guiframework.GuiFramework;
 import com.esophose.guiframework.gui.GuiButton;
-import com.esophose.guiframework.gui.GuiButtonClickAction;
+import com.esophose.guiframework.gui.ClickAction;
 import com.esophose.guiframework.gui.GuiContainer;
 import com.esophose.guiframework.gui.manager.GuiManager;
 import com.esophose.guiframework.gui.screen.GuiScreen;
@@ -52,7 +52,7 @@ public class InventoryListener implements Listener {
         if (clickedButton == null)
             return;
 
-        GuiButtonClickAction clickAction = clickedButton.click(event);
+        ClickAction clickAction = clickedButton.click(event);
 
         switch (clickAction) {
             case CLOSE:

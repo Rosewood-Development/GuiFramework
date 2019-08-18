@@ -1,7 +1,8 @@
 package com.esophose.guiframework;
 
+import com.esophose.guiframework.gui.ClickActionType;
 import com.esophose.guiframework.gui.GuiButton;
-import com.esophose.guiframework.gui.GuiButtonClickAction;
+import com.esophose.guiframework.gui.ClickAction;
 import com.esophose.guiframework.gui.GuiContainer;
 import com.esophose.guiframework.gui.GuiSize;
 import com.esophose.guiframework.gui.screen.GuiPageContentsResult;
@@ -59,9 +60,9 @@ public class GuiFrameworkTest extends JavaPlugin {
                                 .setName(material.name())
                                 .setLore("Index: #" + i)
                                 .setIcon(material)
-                                .setOnClick((event) -> {
+                                .setClickAction((event) -> {
                                     player.sendMessage("You clicked on button #" + buttonIndex + " on page #" + pageNumber);
-                                    return GuiButtonClickAction.NOTHING;
+                                    return ClickAction.NOTHING;
                                 });
                         contents.add(button);
                     }
@@ -72,17 +73,17 @@ public class GuiFrameworkTest extends JavaPlugin {
                     .setName("Backwards")
                     .setLore("Go back a page")
                     .setIcon(Material.PAPER)
-                    .setOnClick(event -> GuiButtonClickAction.PAGE_BACKWARDS))
+                    .setClickAction(event -> ClickAction.PAGE_BACKWARDS))
                 .addButtonAt(GuiUtil.ROW_6_END, new GuiButton()
                     .setName("Forwards")
                     .setLore("Go forward a page")
                     .setIcon(Material.PAPER)
-                    .setOnClick(event -> GuiButtonClickAction.PAGE_FORWARDS))
+                    .setClickAction(event -> ClickAction.PAGE_FORWARDS))
                 .addButtonAt(GuiUtil.ROW_6_START + 4, new GuiButton()
                     .setName("Exit")
                     .setLore("Closes the GUI")
                     .setIcon(Material.BARRIER)
-                    .setOnClick(event -> GuiButtonClickAction.CLOSE));
+                    .setClickAction(event -> ClickAction.CLOSE));
         container.addScreen(screen);
 
         guiFramework.getGuiManager().registerGui(container);

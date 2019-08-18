@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,7 +25,7 @@ public class GuiButton implements ITickable, ISlotable {
     private GuiString name;
     private List<GuiString> lore;
     private boolean glowing;
-    private Function<InventoryClickEvent, GuiButtonClickAction> onClick;
+    private Map<ClickActionType, Function<InventoryClickEvent, ClickAction>> onClickActions;
 
     public GuiButton() {
         this.itemStack = null;
@@ -32,7 +34,7 @@ public class GuiButton implements ITickable, ISlotable {
         this.name = new GuiString();
         this.lore = new ArrayList<>();
         this.glowing = false;
-        this.onClick = null;
+        this.onClickActions = new HashMap<>();
     }
 
     public GuiButton(@NotNull ItemStack itemStack) {
@@ -104,8 +106,13 @@ public class GuiButton implements ITickable, ISlotable {
     }
 
     @NotNull
-    public GuiButton setOnClick(@NotNull Function<InventoryClickEvent, GuiButtonClickAction> onClick) {
-        this.onClick = onClick;
+    public GuiButton setClickAction(@NotNull Function<InventoryClickEvent, ClickAction> onClick, @NotNull ClickActionType... clickActionTypes) {
+        if (clickActionTypes.length == 0) {
+            this.onClickActions.put(ClickActionType.ALL, onClick);
+        } else {
+            for (ClickActionType clickActionType : clickActionTypes)
+                this.onClickActions.put(clickActionType, onClick);
+        }
 
         return this;
     }
@@ -146,8 +153,29 @@ public class GuiButton implements ITickable, ISlotable {
      *
      * @param event The InventoryClickEvent that triggered this button click
      */
-    public GuiButtonClickAction click(@NotNull InventoryClickEvent event) {
-        return this.onClick.apply(event);
+    public ClickAction click(@NotNull InventoryClickEvent event) {
+        Function<InventoryClickEvent, ClickAction> onClick = null;
+
+        if (this.onClickActions.containsKey(ClickActionType.ALL)) {
+            onClick = this.onClickActions.get(ClickActionType.ALL);
+        } else if (event.isLeftClick()) {
+            if (event.isShiftClick()) {
+                onClick = this.onClickActions.get(ClickActionType.SHIFT_LEFT_CLICK);
+            } else {
+                onClick = this.onClickActions.get(ClickActionType.LEFT_CLICK);
+            }
+        } else if (event.isRightClick()) {
+            if (event.isShiftClick()) {
+                onClick = this.onClickActions.get(ClickActionType.SHIFT_RIGHT_CLICK);
+            } else {
+                onClick = this.onClickActions.get(ClickActionType.RIGHT_CLICK);
+            }
+        }
+
+        if (onClick != null)
+            return onClick.apply(event);
+
+        return ClickAction.NOTHING;
     }
 
     @Override

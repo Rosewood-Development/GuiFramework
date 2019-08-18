@@ -1,6 +1,6 @@
 package com.esophose.guiframework.gui;
 
-public enum GuiButtonClickAction {
+public enum ClickAction {
     NOTHING,
     CLOSE,
     PAGE_BACKWARDS,
