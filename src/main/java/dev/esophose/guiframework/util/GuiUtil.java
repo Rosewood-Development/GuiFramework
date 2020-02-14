@@ -18,4 +18,9 @@ public final class GuiUtil {
     public static final int ROW_5_END = 44;
     public static final int ROW_6_END = 53;
 
+    public static final String PREVIOUS_PAGE_NUMBER_PLACEHOLDER = "%previousPage%";
+    public static final String CURRENT_PAGE_NUMBER_PLACEHOLDER = "%currentPage%";
+    public static final String NEXT_PAGE_NUMBER_PLACEHOLDER = "%nextPage%";
+    public static final String MAX_PAGE_NUMBER_PLACEHOLDER = "%maxPage%";
+
 }

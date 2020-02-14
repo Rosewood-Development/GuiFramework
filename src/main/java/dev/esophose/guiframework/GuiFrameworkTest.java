@@ -2,11 +2,11 @@ package dev.esophose.guiframework;
 
 import dev.esophose.guiframework.gui.ClickAction;
 import dev.esophose.guiframework.gui.GuiButton;
+import dev.esophose.guiframework.gui.GuiButtonFlag;
 import dev.esophose.guiframework.gui.GuiContainer;
 import dev.esophose.guiframework.gui.GuiSize;
 import dev.esophose.guiframework.gui.screen.GuiPageContentsResult;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
-import dev.esophose.guiframework.gui.screen.ISlotable;
 import dev.esophose.guiframework.util.GuiUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +49,8 @@ public class GuiFrameworkTest extends JavaPlugin {
 
         GuiScreen screen = new GuiScreen(container, GuiSize.ROWS_SIX)
                 .setTitle("Test GUI")
-                .setPaginatedSection(GuiUtil.ROW_1_START, GuiUtil.ROW_5_END, (pageNumber, startIndex, endIndex) -> {
-                    List<ISlotable> contents = new ArrayList<>();
+                .setPaginatedSection(GuiUtil.ROW_1_START, GuiUtil.ROW_5_END, this.materials.size(), (pageNumber, startIndex, endIndex) -> {
+                    GuiPageContentsResult result = new GuiPageContentsResult();
                     for (int i = startIndex; i <= Math.min(endIndex, this.materials.size() - 1); i++) {
                         int buttonIndex = i;
                         Material material = this.materials.get(i);
@@ -62,21 +62,22 @@ public class GuiFrameworkTest extends JavaPlugin {
                                     player.sendMessage("You clicked on button #" + buttonIndex + " on page #" + pageNumber);
                                     return ClickAction.NOTHING;
                                 });
-                        contents.add(button);
+                        result.addPageContent(button);
                     }
-
-                    return new GuiPageContentsResult(contents, endIndex >= this.materials.size());
+                    return result;
                 })
                 .addButtonAt(GuiUtil.ROW_6_START, new GuiButton()
-                    .setName("Backwards")
+                    .setName("Previous Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
                     .setLore("Go back a page")
                     .setIcon(Material.PAPER)
-                    .setClickAction(event -> ClickAction.PAGE_BACKWARDS))
+                    .setClickAction(event -> ClickAction.PAGE_BACKWARDS)
+                    .setFlags(GuiButtonFlag.HIDE_IF_FIRST_PAGE))
                 .addButtonAt(GuiUtil.ROW_6_END, new GuiButton()
-                    .setName("Forwards")
+                    .setName("Next Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
                     .setLore("Go forward a page")
                     .setIcon(Material.PAPER)
-                    .setClickAction(event -> ClickAction.PAGE_FORWARDS))
+                    .setClickAction(event -> ClickAction.PAGE_FORWARDS)
+                    .setFlags(GuiButtonFlag.HIDE_IF_LAST_PAGE))
                 .addButtonAt(GuiUtil.ROW_6_START + 4, new GuiButton()
                     .setName("Exit")
                     .setLore("Closes the GUI")

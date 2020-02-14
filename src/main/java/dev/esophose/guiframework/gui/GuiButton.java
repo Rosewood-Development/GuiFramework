@@ -4,8 +4,10 @@ import dev.esophose.guiframework.gui.screen.ISlotable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
@@ -25,6 +27,7 @@ public class GuiButton implements ITickable, ISlotable {
     private List<GuiString> lore;
     private boolean glowing;
     private Map<ClickActionType, Function<InventoryClickEvent, ClickAction>> onClickActions;
+    private Set<GuiButtonFlag> flags;
 
     public GuiButton() {
         this.itemStack = null;
@@ -34,6 +37,7 @@ public class GuiButton implements ITickable, ISlotable {
         this.lore = new ArrayList<>();
         this.glowing = false;
         this.onClickActions = new HashMap<>();
+        this.flags = new HashSet<>();
     }
 
     public GuiButton(@NotNull ItemStack itemStack) {
@@ -116,6 +120,18 @@ public class GuiButton implements ITickable, ISlotable {
         return this;
     }
 
+    @NotNull
+    public GuiButton setFlags(GuiButtonFlag... flags) {
+        this.flags = new HashSet<>(Arrays.asList(flags));
+
+        return this;
+    }
+
+    @NotNull
+    public Set<GuiButtonFlag> getFlags() {
+        return this.flags;
+    }
+
     /**
      * Gets the ItemStack that represents this button
      *
@@ -147,11 +163,20 @@ public class GuiButton implements ITickable, ISlotable {
         return this.itemStack;
     }
 
+    @Override
+    public boolean isVisible(int pageNumber, int maxPageNumber) {
+        if (pageNumber == 1 && this.flags.contains(GuiButtonFlag.HIDE_IF_FIRST_PAGE))
+            return false;
+
+        return pageNumber != maxPageNumber || !this.flags.contains(GuiButtonFlag.HIDE_IF_LAST_PAGE);
+    }
+
     /**
      * Executes the click function stored on this button
      *
      * @param event The InventoryClickEvent that triggered this button click
      */
+    @NotNull
     public ClickAction click(@NotNull InventoryClickEvent event) {
         Function<InventoryClickEvent, ClickAction> onClick = null;
 

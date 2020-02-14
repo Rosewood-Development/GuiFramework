@@ -11,11 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +27,7 @@ public class GuiScreen implements ITickable {
     private GuiSize size;
     private String title;
     private GuiScreenSection paginatedSection;
+    private int maximumPageNumber;
     private GuiScreenSection editableSection;
     private PageContentsRequester pageContentsRequester;
     private Map<Integer, GuiPageContentsResult> paginatedSlotCache;
@@ -34,6 +37,7 @@ public class GuiScreen implements ITickable {
     public GuiScreen(@NotNull GuiContainer parentContainer, @NotNull GuiSize size) {
         this.parentContainer = parentContainer;
         this.size = size;
+        this.maximumPageNumber = 1;
         this.paginatedSlotCache = new HashMap<>();
         this.slots = new HashMap<>();
         this.inventories = new HashMap<>();
@@ -47,9 +51,10 @@ public class GuiScreen implements ITickable {
     }
 
     @NotNull
-    public GuiScreen setPaginatedSection(int beginIndex, int endIndex, @NotNull PageContentsRequester pageContentsRequester) {
+    public GuiScreen setPaginatedSection(int beginIndex, int endIndex, int totalItems, @NotNull PageContentsRequester pageContentsRequester) {
         this.paginatedSection = new GuiScreenSection(beginIndex, endIndex);
         this.pageContentsRequester = pageContentsRequester;
+        this.maximumPageNumber = (int) Math.ceil((double) totalItems / this.paginatedSection.getSlotAmount());
 
         return this;
     }
@@ -214,7 +219,7 @@ public class GuiScreen implements ITickable {
      * @return true if the inventory is contained within this screen, otherwise false
      */
     public boolean containsInventory(Inventory inventory) {
-        return this.inventories.values().contains(inventory);
+        return this.inventories.containsValue(inventory);
     }
 
     /**
@@ -233,13 +238,8 @@ public class GuiScreen implements ITickable {
         return inventory;
     }
 
-    @NotNull
-    public Inventory getFirstInventory() {
-        return this.getInventory(1);
-    }
-
     public boolean hasNextPage(int pageNumber) {
-        return !this.paginatedSlotCache.get(pageNumber).isFinished();
+        return pageNumber < this.maximumPageNumber;
     }
 
     private void updateInventories() {
@@ -267,18 +267,54 @@ public class GuiScreen implements ITickable {
             int startIndex = (amount * (pageNumber - 1));
             int endIndex = (amount * (pageNumber - 1)) + amount;
 
-            GuiPageContentsResult result = this.pageContentsRequester.request(pageNumber, startIndex, endIndex);
+            GuiPageContentsResult result;
+            if (!this.paginatedSlotCache.containsKey(pageNumber)) {
+                result = this.pageContentsRequester.request(pageNumber, startIndex, endIndex);
+                this.paginatedSlotCache.put(pageNumber, result);
+            } else {
+                result = this.paginatedSlotCache.get(pageNumber);
+            }
+
             List<ISlotable> pageContents = result.getPageContents();
             List<Integer> slots = this.paginatedSection.getSlots();
 
-            for (int i = 0; i < slots.size() && i < pageContents.size(); i++)
-                inventory.setItem(slots.get(i), pageContents.get(i).getItemStack());
-
-            this.paginatedSlotCache.put(pageNumber, result);
+            for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
+                int slot = slots.get(i);
+                ISlotable slotable = pageContents.get(i);
+                if (slotable.isVisible(pageNumber, this.maximumPageNumber))
+                    inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
+            }
         }
 
-        for (int slot : this.slots.keySet())
-            inventory.setItem(slot, this.slots.get(slot).getItemStack());
+        for (int slot : this.slots.keySet()) {
+            ISlotable slotable = this.slots.get(slot);
+            if (slotable.isVisible(pageNumber, this.maximumPageNumber))
+                inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
+        }
+    }
+
+    private ItemStack applyPageNumberReplacements(ItemStack itemStack, int currentPageNumber, int maxPageNumber) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return itemStack;
+
+        itemMeta.setDisplayName(itemMeta.getDisplayName()
+                .replaceAll(Pattern.quote(GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER), String.valueOf(currentPageNumber - 1))
+                .replaceAll(Pattern.quote(GuiUtil.CURRENT_PAGE_NUMBER_PLACEHOLDER), String.valueOf(currentPageNumber))
+                .replaceAll(Pattern.quote(GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER), String.valueOf(currentPageNumber + 1))
+                .replaceAll(Pattern.quote(GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER), String.valueOf(maxPageNumber)));
+
+        List<String> lore = itemMeta.getLore();
+        if (lore != null) {
+            lore.replaceAll(x -> x.replaceAll(Pattern.quote(GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER), String.valueOf(currentPageNumber - 1))
+                    .replaceAll(Pattern.quote(GuiUtil.CURRENT_PAGE_NUMBER_PLACEHOLDER), String.valueOf(currentPageNumber))
+                    .replaceAll(Pattern.quote(GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER), String.valueOf(currentPageNumber + 1))
+                    .replaceAll(Pattern.quote(GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER), String.valueOf(maxPageNumber)));
+            itemMeta.setLore(lore);
+        }
+
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
     }
 
     private Inventory createInventory(int pageNumber) {
