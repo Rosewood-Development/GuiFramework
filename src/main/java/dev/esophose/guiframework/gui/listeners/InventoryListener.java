@@ -1,11 +1,11 @@
-package com.esophose.guiframework.gui.listeners;
+package dev.esophose.guiframework.gui.listeners;
 
-import com.esophose.guiframework.GuiFramework;
-import com.esophose.guiframework.gui.GuiButton;
-import com.esophose.guiframework.gui.ClickAction;
-import com.esophose.guiframework.gui.GuiContainer;
-import com.esophose.guiframework.gui.manager.GuiManager;
-import com.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.GuiFramework;
+import dev.esophose.guiframework.gui.ClickAction;
+import dev.esophose.guiframework.gui.GuiButton;
+import dev.esophose.guiframework.gui.GuiContainer;
+import dev.esophose.guiframework.gui.manager.GuiManager;
+import dev.esophose.guiframework.gui.screen.GuiScreen;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

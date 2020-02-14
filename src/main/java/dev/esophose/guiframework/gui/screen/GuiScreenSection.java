@@ -1,6 +1,4 @@
-package com.esophose.guiframework.gui.screen;
-
-import org.jetbrains.annotations.NotNull;
+package dev.esophose.guiframework.gui.screen;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.jetbrains.annotations.NotNull;
 
 public class GuiScreenSection {
 

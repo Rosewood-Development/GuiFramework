@@ -1,24 +1,23 @@
-package com.esophose.guiframework.gui.screen;
+package dev.esophose.guiframework.gui.screen;
 
-import com.esophose.guiframework.gui.GuiButton;
-import com.esophose.guiframework.gui.GuiContainer;
-import com.esophose.guiframework.gui.GuiSize;
-import com.esophose.guiframework.gui.GuiView;
-import com.esophose.guiframework.gui.ITickable;
-import com.esophose.guiframework.util.GuiUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import dev.esophose.guiframework.gui.GuiButton;
+import dev.esophose.guiframework.gui.GuiContainer;
+import dev.esophose.guiframework.gui.GuiSize;
+import dev.esophose.guiframework.gui.GuiView;
+import dev.esophose.guiframework.gui.ITickable;
+import dev.esophose.guiframework.util.GuiUtil;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class GuiScreen implements ITickable {
 

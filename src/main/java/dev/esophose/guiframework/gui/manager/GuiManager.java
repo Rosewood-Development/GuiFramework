@@ -1,14 +1,13 @@
-package com.esophose.guiframework.gui.manager;
+package dev.esophose.guiframework.gui.manager;
 
-import com.esophose.guiframework.gui.GuiContainer;
-import com.esophose.guiframework.gui.ITickable;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
-
+import dev.esophose.guiframework.gui.GuiContainer;
+import dev.esophose.guiframework.gui.ITickable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 public class GuiManager implements ITickable {
 

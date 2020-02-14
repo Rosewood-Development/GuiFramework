@@ -1,14 +1,15 @@
-package com.esophose.guiframework;
+package dev.esophose.guiframework;
 
-import com.esophose.guiframework.gui.ClickActionType;
-import com.esophose.guiframework.gui.GuiButton;
-import com.esophose.guiframework.gui.ClickAction;
-import com.esophose.guiframework.gui.GuiContainer;
-import com.esophose.guiframework.gui.GuiSize;
-import com.esophose.guiframework.gui.screen.GuiPageContentsResult;
-import com.esophose.guiframework.gui.screen.GuiScreen;
-import com.esophose.guiframework.gui.screen.ISlotable;
-import com.esophose.guiframework.util.GuiUtil;
+import dev.esophose.guiframework.gui.ClickAction;
+import dev.esophose.guiframework.gui.GuiButton;
+import dev.esophose.guiframework.gui.GuiContainer;
+import dev.esophose.guiframework.gui.GuiSize;
+import dev.esophose.guiframework.gui.screen.GuiPageContentsResult;
+import dev.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.ISlotable;
+import dev.esophose.guiframework.util.GuiUtil;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -17,9 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiFrameworkTest extends JavaPlugin {
 

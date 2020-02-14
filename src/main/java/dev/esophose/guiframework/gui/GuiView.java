@@ -1,12 +1,10 @@
-package com.esophose.guiframework.gui;
+package dev.esophose.guiframework.gui;
 
-import com.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.GuiScreen;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 public class GuiView {
 

@@ -1,8 +1,8 @@
-package com.esophose.guiframework;
+package dev.esophose.guiframework;
 
-import com.esophose.guiframework.gui.listeners.InventoryListener;
-import com.esophose.guiframework.gui.manager.GuiManager;
 import com.google.common.base.Preconditions;
+import dev.esophose.guiframework.gui.listeners.InventoryListener;
+import dev.esophose.guiframework.gui.manager.GuiManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;

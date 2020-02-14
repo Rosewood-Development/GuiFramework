@@ -1,10 +1,9 @@
-package com.esophose.guiframework.gui;
-
-import org.bukkit.Material;
-import org.jetbrains.annotations.NotNull;
+package dev.esophose.guiframework.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
 
 public class GuiIcon implements ITickable {
 

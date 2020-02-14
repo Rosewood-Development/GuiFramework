@@ -1,9 +1,8 @@
-package com.esophose.guiframework.gui;
-
-import org.jetbrains.annotations.NotNull;
+package dev.esophose.guiframework.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class GuiString implements ITickable {
 

@@ -1,4 +1,4 @@
-package com.esophose.guiframework.util;
+package dev.esophose.guiframework.util;
 
 import org.bukkit.Bukkit;
 

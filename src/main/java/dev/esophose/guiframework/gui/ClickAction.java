@@ -1,4 +1,4 @@
-package com.esophose.guiframework.gui;
+package dev.esophose.guiframework.gui;
 
 public enum ClickAction {
     NOTHING,

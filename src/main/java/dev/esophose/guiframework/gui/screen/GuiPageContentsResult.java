@@ -1,4 +1,4 @@
-package com.esophose.guiframework.gui.screen;
+package dev.esophose.guiframework.gui.screen;
 
 import java.util.Collections;
 import java.util.List;

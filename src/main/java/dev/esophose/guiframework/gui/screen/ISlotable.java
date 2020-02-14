@@ -1,4 +1,4 @@
-package com.esophose.guiframework.gui.screen;
+package dev.esophose.guiframework.gui.screen;
 
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

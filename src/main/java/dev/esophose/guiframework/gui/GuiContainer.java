@@ -1,14 +1,13 @@
-package com.esophose.guiframework.gui;
+package dev.esophose.guiframework.gui;
 
-import com.esophose.guiframework.gui.screen.GuiScreen;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-
+import dev.esophose.guiframework.gui.screen.GuiScreen;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class GuiContainer implements ITickable {
 
