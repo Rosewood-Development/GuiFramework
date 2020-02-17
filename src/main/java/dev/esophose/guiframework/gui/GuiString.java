@@ -2,6 +2,7 @@ package dev.esophose.guiframework.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiString implements ITickable {
@@ -30,7 +31,8 @@ public class GuiString implements ITickable {
 
     @Override
     public void tick() {
-        this.currentIndex = (this.currentIndex + 1) % this.strings.size();
+        if (!this.strings.isEmpty())
+            this.currentIndex = (this.currentIndex + 1) % this.strings.size();
     }
 
     /**
@@ -42,9 +44,9 @@ public class GuiString implements ITickable {
     @NotNull
     public String toString() {
         if (this.strings.isEmpty())
-            return "Missing String";
+            return "";
 
-        return this.strings.get(this.currentIndex);
+        return ChatColor.translateAlternateColorCodes('&', this.strings.get(this.currentIndex));
     }
 
 }

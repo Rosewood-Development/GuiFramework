@@ -50,7 +50,8 @@ public class GuiIcon implements ITickable {
 
     @Override
     public void tick() {
-        this.currentIndex = (this.currentIndex + 1) % this.materials.size();
+        if (!this.materials.isEmpty())
+            this.currentIndex = (this.currentIndex + 1) % this.materials.size();
     }
 
     /**

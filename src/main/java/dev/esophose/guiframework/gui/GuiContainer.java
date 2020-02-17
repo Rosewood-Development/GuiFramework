@@ -38,6 +38,10 @@ public class GuiContainer implements ITickable {
         return this;
     }
 
+    public int getTickRate() {
+        return this.tickRate;
+    }
+
     /**
      * Opens the Gui for a player at a specific page number
      *
@@ -96,6 +100,38 @@ public class GuiContainer implements ITickable {
         player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 
+    public void transitionForwards(@NotNull Player player) {
+        GuiView view = this.currentViewers.get(player.getUniqueId());
+        for (int key : this.screens.keySet()) {
+            GuiScreen screen = this.screens.get(key);
+            if (screen == view.getViewingScreen()) {
+                GuiScreen nextScreen = this.screens.get(key + 1);
+                if (nextScreen != null) {
+                    view.setViewingScreen(nextScreen);
+                    view.setViewingPage(1);
+                    player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+                }
+                return;
+            }
+        }
+    }
+
+    public void transitionBackwards(@NotNull Player player) {
+        GuiView view = this.currentViewers.get(player.getUniqueId());
+        for (int key : this.screens.keySet()) {
+            GuiScreen screen = this.screens.get(key);
+            if (screen == view.getViewingScreen()) {
+                GuiScreen nextScreen = this.screens.get(key - 1);
+                if (nextScreen != null) {
+                    view.setViewingScreen(nextScreen);
+                    view.setViewingPage(1);
+                    player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+                }
+                return;
+            }
+        }
+    }
+
     /**
      * Adds a screen at the highest screen number plus one
      *
@@ -111,9 +147,10 @@ public class GuiContainer implements ITickable {
             return;
 
         this.currentTick++;
-        if (this.currentTick == this.tickRate) {
+        if (this.currentTick >= this.tickRate) {
             this.currentTick = 0;
             this.screens.values().forEach(GuiScreen::tick);
+            this.currentViewers.values().forEach(GuiView::refresh);
         }
     }
 

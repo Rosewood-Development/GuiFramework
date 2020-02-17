@@ -37,7 +37,11 @@ public class GuiScreen implements ITickable {
     public GuiScreen(@NotNull GuiContainer parentContainer, @NotNull GuiSize size) {
         this.parentContainer = parentContainer;
         this.size = size;
+        this.title = "";
+        this.paginatedSection = null;
         this.maximumPageNumber = 1;
+        this.editableSection = null;
+        this.pageContentsRequester = null;
         this.paginatedSlotCache = new HashMap<>();
         this.slots = new HashMap<>();
         this.inventories = new HashMap<>();
@@ -52,7 +56,12 @@ public class GuiScreen implements ITickable {
 
     @NotNull
     public GuiScreen setPaginatedSection(int beginIndex, int endIndex, int totalItems, @NotNull PageContentsRequester pageContentsRequester) {
-        this.paginatedSection = new GuiScreenSection(beginIndex, endIndex);
+        return this.setPaginatedSection(new GuiScreenSection(beginIndex, endIndex), totalItems, pageContentsRequester);
+    }
+
+    @NotNull
+    public GuiScreen setPaginatedSection(@NotNull GuiScreenSection guiScreenSection, int totalItems, @NotNull PageContentsRequester pageContentsRequester) {
+        this.paginatedSection = guiScreenSection;
         this.pageContentsRequester = pageContentsRequester;
         this.maximumPageNumber = (int) Math.ceil((double) totalItems / this.paginatedSection.getSlotAmount());
 
@@ -98,8 +107,8 @@ public class GuiScreen implements ITickable {
 
     @Override
     public void tick() {
-        this.getButtons().values().forEach(GuiButton::tick);
-        this.inventories.keySet().forEach(x -> this.getPageButtons(x).values().forEach(GuiButton::tick));
+        this.slots.values().forEach(ISlotable::tick);
+        this.paginatedSlotCache.values().forEach(x -> x.getPageContents().forEach(ISlotable::tick));
         this.updateInventories();
     }
 
@@ -128,6 +137,10 @@ public class GuiScreen implements ITickable {
         return this.slots;
     }
 
+    public int getMaximumPageNumber() {
+        return this.maximumPageNumber;
+    }
+
     /**
      * Gets a button on the screen given a target page and slot number
      *
@@ -141,6 +154,13 @@ public class GuiScreen implements ITickable {
             if (this.inventories.get(page) == inventory)
                 return this.getButtons(page).get(slot);
         return null;
+    }
+
+    public boolean isButtonOnInventoryPageVisible(@NotNull Inventory inventory, int slot) {
+        for (int page : this.inventories.keySet())
+            if (this.inventories.get(page) == inventory)
+                return this.getButtons(page).get(slot).isVisible(page, this.maximumPageNumber);
+        return true;
     }
 
     /**
@@ -168,7 +188,11 @@ public class GuiScreen implements ITickable {
     public Map<Integer, GuiButton> getPageButtons(int pageNumber) {
         Map<Integer, GuiButton> pageButtons = new HashMap<>();
 
-        List<ISlotable> pageContents = this.paginatedSlotCache.get(pageNumber).getPageContents();
+        GuiPageContentsResult contentsResult = this.paginatedSlotCache.get(pageNumber);
+        if (contentsResult == null)
+            return pageButtons;
+
+        List<ISlotable> pageContents = contentsResult.getPageContents();
         List<Integer> slots = this.paginatedSection.getSlots();
 
         for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
@@ -225,12 +249,28 @@ public class GuiScreen implements ITickable {
     /**
      * Gets the Inventory for a page on this screen
      *
+     * @param pageNumber The page number to get
      * @return The Inventory with the page's content
      */
     @NotNull
     public Inventory getInventory(int pageNumber) {
-        if (this.inventories.containsKey(pageNumber))
-            return this.inventories.get(pageNumber);
+        return this.getInventory(pageNumber, false);
+    }
+
+    /**
+     * Gets the Inventory for a page on this screen
+     *
+     * @param pageNumber The page number to get
+     * @param forceRefresh Whether or not to forcefully refresh the inventory
+     * @return The Inventory with the page's content
+     */
+    public Inventory getInventory(int pageNumber, boolean forceRefresh) {
+        if (this.inventories.containsKey(pageNumber)) {
+            Inventory inventory = this.inventories.get(pageNumber);
+            if (forceRefresh)
+                this.populateInventory(pageNumber, inventory);
+            return inventory;
+        }
 
         Inventory inventory = this.createInventory(pageNumber);
         this.populateInventory(pageNumber, inventory);

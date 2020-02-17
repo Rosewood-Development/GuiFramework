@@ -71,4 +71,8 @@ public class GuiView {
         return this.viewingPage;
     }
 
+    public void refresh() {
+        this.getViewer().openInventory(this.getViewingScreen().getInventory(this.viewingPage, true));
+    }
+
 }

@@ -4,14 +4,21 @@ import dev.esophose.guiframework.gui.ClickAction;
 import dev.esophose.guiframework.gui.GuiButton;
 import dev.esophose.guiframework.gui.GuiButtonFlag;
 import dev.esophose.guiframework.gui.GuiContainer;
+import dev.esophose.guiframework.gui.GuiIcon;
 import dev.esophose.guiframework.gui.GuiSize;
+import dev.esophose.guiframework.gui.GuiString;
 import dev.esophose.guiframework.gui.screen.GuiPageContentsResult;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.GuiScreenSection;
 import dev.esophose.guiframework.util.GuiUtil;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,23 +52,45 @@ public class GuiFrameworkTest extends JavaPlugin {
 
         GuiFramework guiFramework = GuiFramework.instantiate(this);
 
-        GuiContainer container = new GuiContainer();
+        GuiContainer container = new GuiContainer()
+                .setTickRate(5);
+
+        List<Integer> paginatedSlots = new ArrayList<>();
+        for (int i = 10; i <= 16; i++) paginatedSlots.add(i);
+        for (int i = 19; i <= 25; i++) paginatedSlots.add(i);
+        for (int i = 28; i <= 34; i++) paginatedSlots.add(i);
+        for (int i = 37; i <= 43; i++) paginatedSlots.add(i);
+
+        GuiScreenSection paginatedSection = new GuiScreenSection(paginatedSlots);
+
+        AtomicBoolean coinFlip = new AtomicBoolean();
+        AtomicInteger numberFlipped = new AtomicInteger();
 
         GuiScreen screen = new GuiScreen(container, GuiSize.ROWS_SIX)
-                .setTitle("Test GUI")
-                .setPaginatedSection(GuiUtil.ROW_1_START, GuiUtil.ROW_5_END, this.materials.size(), (pageNumber, startIndex, endIndex) -> {
+                .setTitle("All Items/Blocks")
+                .setPaginatedSection(paginatedSection, this.materials.size(), (pageNumber, startIndex, endIndex) -> {
                     GuiPageContentsResult result = new GuiPageContentsResult();
                     for (int i = startIndex; i <= Math.min(endIndex, this.materials.size() - 1); i++) {
                         int buttonIndex = i;
                         Material material = this.materials.get(i);
+
+                        GuiIcon guiIcon = new GuiIcon();
+                        for (int n = i; n < this.materials.size(); n++) {
+                            guiIcon.addAnimationFrame(this.materials.get(n));
+                        }
+                        for (int n = 0; n < i; n++) {
+                            guiIcon.addAnimationFrame(this.materials.get(n));
+                        }
+
                         GuiButton button = new GuiButton()
                                 .setName(material.name())
                                 .setLore("Index: #" + i)
-                                .setIcon(material)
+                                .setIcon(guiIcon)
                                 .setClickAction((event) -> {
                                     player.sendMessage("You clicked on button #" + buttonIndex + " on page #" + pageNumber);
                                     return ClickAction.NOTHING;
-                                });
+                                })
+                                .setClickSound(Sound.UI_BUTTON_CLICK);
                         result.addPageContent(button);
                     }
                     return result;
@@ -71,19 +100,89 @@ public class GuiFrameworkTest extends JavaPlugin {
                     .setLore("Go back a page")
                     .setIcon(Material.PAPER)
                     .setClickAction(event -> ClickAction.PAGE_BACKWARDS)
+                    .setClickSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
                     .setFlags(GuiButtonFlag.HIDE_IF_FIRST_PAGE))
                 .addButtonAt(GuiUtil.ROW_6_END, new GuiButton()
                     .setName("Next Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
                     .setLore("Go forward a page")
                     .setIcon(Material.PAPER)
                     .setClickAction(event -> ClickAction.PAGE_FORWARDS)
+                    .setClickSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
                     .setFlags(GuiButtonFlag.HIDE_IF_LAST_PAGE))
                 .addButtonAt(GuiUtil.ROW_6_START + 4, new GuiButton()
                     .setName("Exit")
                     .setLore("Closes the GUI")
                     .setIcon(Material.BARRIER)
-                    .setClickAction(event -> ClickAction.CLOSE));
+                    .setClickAction(event -> ClickAction.CLOSE)
+                    .setClickSound(Sound.ENTITY_VILLAGER_NO))
+                .addButtonAt(GuiUtil.ROW_6_START + 2, new GuiButton()
+                    .setName("Decrease Update Speed")
+                    .setLore("Slow and steady")
+                    .setIcon(Material.SCUTE)
+                    .setClickAction(event -> {
+                        container.setTickRate(container.getTickRate() + 1);
+                        return ClickAction.NOTHING;
+                    })
+                    .setClickSound(Sound.ENTITY_TURTLE_HURT_BABY))
+                .addButtonAt(GuiUtil.ROW_6_END - 2, new GuiButton()
+                    .setName("Increase Update Speed")
+                    .setLore("Gotta go fast")
+                    .setIcon(Material.RABBIT_FOOT)
+                    .setClickAction(event -> {
+                        container.setTickRate(Math.max(container.getTickRate() - 1, 1));
+                        return ClickAction.NOTHING;
+                    })
+                    .setClickSound(Sound.ENTITY_TURTLE_HURT_BABY))
+                .addButtonAt(GuiUtil.ROW_1_START + 4, new GuiButton()
+                    .setName("&eForwards")
+                    .setIcon(Material.ARROW)
+                    .setClickAction(event -> ClickAction.TRANSITION_FORWARDS));
         container.addScreen(screen);
+
+        GuiScreen screen2 = new GuiScreen(container, GuiSize.DYNAMIC)
+                .setTitle("Coin flip game")
+                .addButtonAt(GuiUtil.ROW_1_START + 4, new GuiButton()
+                    .setIconSupplier(() -> {
+                        if (numberFlipped.get() == 0) {
+                            return new GuiIcon(Material.LAPIS_LAZULI);
+                        } else {
+                            if (coinFlip.get()) {
+                                return new GuiIcon(Material.GOLD_INGOT);
+                            } else {
+                                return new GuiIcon(Material.IRON_INGOT);
+                            }
+                        }
+                    })
+                    .setNameSupplier(() -> {
+                        if (numberFlipped.get() == 0) {
+                            return new GuiString("&bClick to flip a coin!");
+                        } else {
+                            return new GuiString("&eClick to flip coin #" + (numberFlipped.get() + 1) + "!");
+                        }
+                    })
+                    .setLoreSupplier(() -> {
+                        if (numberFlipped.get() == 0) {
+                            return Collections.emptyList();
+                        } else {
+                            if (coinFlip.get()) {
+                                return Collections.singletonList(new GuiString("&aHeads!"));
+                            } else {
+                                return Collections.singletonList(new GuiString("&cTails!"));
+                            }
+                        }
+                    })
+                    .setGlowingSupplier(() -> numberFlipped.get() != 0)
+                    .setClickAction(event -> {
+                        numberFlipped.incrementAndGet();
+                        coinFlip.set(Math.random() > 0.5);
+                        return ClickAction.REFRESH;
+                    }))
+                .addButtonAt(GuiUtil.ROW_1_END, new GuiButton()
+                    .setIcon(Material.ARROW)
+                    .setName("&eBack")
+                    .setClickAction(event -> ClickAction.TRANSITION_BACKWARDS));
+
+        container.addScreen(screen2);
 
         guiFramework.getGuiManager().registerGui(container);
 

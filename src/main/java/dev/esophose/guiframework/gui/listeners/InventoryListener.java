@@ -31,10 +31,12 @@ public class InventoryListener implements Listener {
         Player player = (Player) event.getWhoClicked();
 
         GuiScreen clickedScreen = null;
+        GuiContainer clickedContainer = null;
         for (GuiContainer container : this.guiManager.getActiveGuis()) {
             for (GuiScreen screen : container.getScreens()) {
                 if (screen.containsInventory(inventory)) {
                     clickedScreen = screen;
+                    clickedContainer = container;
                     break;
                 }
             }
@@ -49,7 +51,7 @@ public class InventoryListener implements Listener {
             return;
 
         GuiButton clickedButton = clickedScreen.getButtonOnInventoryPage(inventory, event.getSlot());
-        if (clickedButton == null)
+        if (clickedButton == null || !clickedScreen.isButtonOnInventoryPageVisible(inventory, event.getSlot()))
             return;
 
         ClickAction clickAction = clickedButton.click(event);
@@ -58,15 +60,20 @@ public class InventoryListener implements Listener {
             case CLOSE:
                 player.closeInventory();
                 break;
+            case REFRESH:
+                clickedContainer.getCurrentViewers().get(player.getUniqueId()).refresh();
+                break;
             case PAGE_BACKWARDS:
-                clickedScreen.getParentContainer().pageBackwards(player);
+                clickedContainer.pageBackwards(player);
                 break;
             case PAGE_FORWARDS:
-                clickedScreen.getParentContainer().pageForwards(player);
+                clickedContainer.pageForwards(player);
                 break;
             case TRANSITION_BACKWARDS:
+                clickedContainer.transitionBackwards(player);
                 break;
             case TRANSITION_FORWARDS:
+                clickedContainer.transitionForwards(player);
                 break;
             default:
                 break;

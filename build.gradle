@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.spigotmc:spigot:1.15.2-R0.1-20200202.085145-8'
 
     // JetBrains Annotations
-    implementation (group: 'org.jetbrains', name: 'annotations', version: '13.0')
+    implementation 'org.jetbrains:annotations:13.0'
 }
 
 processResources {
