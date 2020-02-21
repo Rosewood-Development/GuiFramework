@@ -1,10 +1,10 @@
 package dev.esophose.guiframework.gui.screen;
 
-import dev.esophose.guiframework.gui.ITickable;
+import dev.esophose.guiframework.gui.Tickable;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public interface ISlotable {
+public interface Slotable {
 
     @NotNull
     ItemStack getItemStack();
@@ -21,11 +21,11 @@ public interface ISlotable {
     }
 
     /**
-     * If this ISlotable is an instance of an ITickable, tick it
+     * If this Slotable is an instance of an Tickable, tick it
      */
     default void tick() {
-        if (this instanceof ITickable)
-            ((ITickable) this).tick();
+        if (this instanceof Tickable)
+            ((Tickable) this).tick();
     }
 
 }
