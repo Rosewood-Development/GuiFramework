@@ -6,13 +6,13 @@ import java.util.List;
 
 public class GuiPageContentsResult {
 
-    private List<ISlotable> pageContents;
+    private List<Slotable> pageContents;
 
     public GuiPageContentsResult() {
         this(new ArrayList<>());
     }
 
-    public GuiPageContentsResult(List<ISlotable> pageContents) {
+    public GuiPageContentsResult(List<Slotable> pageContents) {
         this.pageContents = pageContents;
     }
 
@@ -21,17 +21,17 @@ public class GuiPageContentsResult {
      *
      * @param pageContents The indices and contents of the page
      */
-    public void setPageContents(List<ISlotable> pageContents) {
+    public void setPageContents(List<Slotable> pageContents) {
         this.pageContents = pageContents;
     }
 
     // TODO: JAVADOC
 
-    public void addPageContent(ISlotable content) {
+    public void addPageContent(Slotable content) {
         this.pageContents.add(content);
     }
 
-    public List<ISlotable> getPageContents() {
+    public List<Slotable> getPageContents() {
         return Collections.unmodifiableList(this.pageContents);
     }
 

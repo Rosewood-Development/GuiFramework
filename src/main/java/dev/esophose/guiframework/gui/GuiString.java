@@ -5,7 +5,7 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
-public class GuiString implements ITickable {
+public class GuiString implements Tickable {
 
     private List<String> strings;
     private int currentIndex;

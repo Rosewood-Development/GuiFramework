@@ -55,7 +55,7 @@ public class GuiScreenSection {
      * @param screen The screen to iterate through
      * @param action The action to execute
      */
-    public void forEachSlot(@NotNull GuiScreen screen, @NotNull Consumer<ISlotable> action) {
+    public void forEachSlot(@NotNull GuiScreen screen, @NotNull Consumer<Slotable> action) {
         for (int slot : this.slots)
             action.accept(screen.getSlot(slot));
     }
@@ -66,9 +66,9 @@ public class GuiScreenSection {
      * @param screen The screen to iterate through
      * @param action The action to execute
      */
-    public void forEachNonEmptySlot(@NotNull GuiScreen screen, @NotNull Consumer<ISlotable> action) {
+    public void forEachNonEmptySlot(@NotNull GuiScreen screen, @NotNull Consumer<Slotable> action) {
         for (int slot : this.slots) {
-            ISlotable slotable = screen.getSlot(slot);
+            Slotable slotable = screen.getSlot(slot);
             if (slotable != null)
                 action.accept(slotable);
         }

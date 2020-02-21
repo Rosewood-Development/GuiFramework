@@ -1,7 +1,7 @@
 package dev.esophose.guiframework.gui.manager;
 
 import dev.esophose.guiframework.gui.GuiContainer;
-import dev.esophose.guiframework.gui.ITickable;
+import dev.esophose.guiframework.gui.Tickable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-public class GuiManager implements ITickable {
+public class GuiManager implements Tickable {
 
     private Set<GuiContainer> activeGuis;
 

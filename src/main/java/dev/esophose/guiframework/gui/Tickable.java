@@ -1,6 +1,6 @@
 package dev.esophose.guiframework.gui;
 
-public interface ITickable {
+public interface Tickable {
 
     /**
      * Ticks the object to its next state

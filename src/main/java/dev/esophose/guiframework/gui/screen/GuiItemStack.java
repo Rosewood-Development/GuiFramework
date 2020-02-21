@@ -3,7 +3,7 @@ package dev.esophose.guiframework.gui.screen;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class GuiItemStack implements ISlotable {
+public class GuiItemStack implements Slotable {
 
     private ItemStack itemStack;
 

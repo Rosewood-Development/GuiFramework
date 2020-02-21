@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class GuiContainer implements ITickable {
+public class GuiContainer implements Tickable {
 
     private Map<UUID, GuiView> currentViewers;
     private Map<Integer, GuiScreen> screens;

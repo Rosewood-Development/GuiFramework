@@ -19,9 +19,7 @@ public enum GuiSize {
     }
 
     /**
-     * Gets the number of slots for the gui size
-     *
-     * @return The number of slots for the gui size
+     * @return the number of slots for the gui size
      */
     public int getNumSlots() {
         return this.numSlots;

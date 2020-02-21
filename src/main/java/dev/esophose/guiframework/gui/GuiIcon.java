@@ -5,7 +5,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 
-public class GuiIcon implements ITickable {
+public class GuiIcon implements Tickable {
 
     private List<Material> materials;
     private List<Byte> dataValues;

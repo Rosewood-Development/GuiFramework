@@ -4,7 +4,7 @@ import dev.esophose.guiframework.gui.GuiButton;
 import dev.esophose.guiframework.gui.GuiContainer;
 import dev.esophose.guiframework.gui.GuiSize;
 import dev.esophose.guiframework.gui.GuiView;
-import dev.esophose.guiframework.gui.ITickable;
+import dev.esophose.guiframework.gui.Tickable;
 import dev.esophose.guiframework.util.GuiUtil;
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GuiScreen implements ITickable {
+public class GuiScreen implements Tickable {
 
     private GuiContainer parentContainer;
     private GuiSize size;
@@ -31,7 +31,7 @@ public class GuiScreen implements ITickable {
     private GuiScreenSection editableSection;
     private PageContentsRequester pageContentsRequester;
     private Map<Integer, GuiPageContentsResult> paginatedSlotCache;
-    private Map<Integer, ISlotable> slots;
+    private Map<Integer, Slotable> slots;
     private Map<Integer, Inventory> inventories;
 
     public GuiScreen(@NotNull GuiContainer parentContainer, @NotNull GuiSize size) {
@@ -107,8 +107,8 @@ public class GuiScreen implements ITickable {
 
     @Override
     public void tick() {
-        this.slots.values().forEach(ISlotable::tick);
-        this.paginatedSlotCache.values().forEach(x -> x.getPageContents().forEach(ISlotable::tick));
+        this.slots.values().forEach(Slotable::tick);
+        this.paginatedSlotCache.values().forEach(x -> x.getPageContents().forEach(Slotable::tick));
         this.updateInventories();
     }
 
@@ -128,12 +128,12 @@ public class GuiScreen implements ITickable {
     }
 
     @Nullable
-    public ISlotable getSlot(int index) {
+    public Slotable getSlot(int index) {
         return this.slots.get(index);
     }
 
     @NotNull
-    public Map<Integer, ISlotable> getSlots() {
+    public Map<Integer, Slotable> getSlots() {
         return this.slots;
     }
 
@@ -192,11 +192,11 @@ public class GuiScreen implements ITickable {
         if (contentsResult == null)
             return pageButtons;
 
-        List<ISlotable> pageContents = contentsResult.getPageContents();
+        List<Slotable> pageContents = contentsResult.getPageContents();
         List<Integer> slots = this.paginatedSection.getSlots();
 
         for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
-            ISlotable slot = pageContents.get(i);
+            Slotable slot = pageContents.get(i);
             if (slot instanceof GuiButton)
                 pageButtons.put(slots.get(i), (GuiButton) slot);
         }
@@ -212,7 +212,7 @@ public class GuiScreen implements ITickable {
         Map<Integer, ItemStack> content = new HashMap<>();
 
         this.editableSection.forEach(i -> {
-            ISlotable slotable = this.getSlot(i);
+            Slotable slotable = this.getSlot(i);
             if (slotable != null)
                 content.put(i, slotable.getItemStack());
         });
@@ -315,19 +315,19 @@ public class GuiScreen implements ITickable {
                 result = this.paginatedSlotCache.get(pageNumber);
             }
 
-            List<ISlotable> pageContents = result.getPageContents();
+            List<Slotable> pageContents = result.getPageContents();
             List<Integer> slots = this.paginatedSection.getSlots();
 
             for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
                 int slot = slots.get(i);
-                ISlotable slotable = pageContents.get(i);
+                Slotable slotable = pageContents.get(i);
                 if (slotable.isVisible(pageNumber, this.maximumPageNumber))
                     inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
             }
         }
 
         for (int slot : this.slots.keySet()) {
-            ISlotable slotable = this.slots.get(slot);
+            Slotable slotable = this.slots.get(slot);
             if (slotable.isVisible(pageNumber, this.maximumPageNumber))
                 inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
         }

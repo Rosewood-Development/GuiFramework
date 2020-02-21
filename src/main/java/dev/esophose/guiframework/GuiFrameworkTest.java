@@ -72,18 +72,21 @@ public class GuiFrameworkTest extends JavaPlugin {
                     GuiPageContentsResult result = new GuiPageContentsResult();
                     for (int i = startIndex; i <= Math.min(endIndex, this.materials.size() - 1); i++) {
                         int buttonIndex = i;
-                        Material material = this.materials.get(i);
-
                         GuiIcon guiIcon = new GuiIcon();
+                        GuiString guiString = new GuiString();
                         for (int n = i; n < this.materials.size(); n++) {
-                            guiIcon.addAnimationFrame(this.materials.get(n));
+                            Material material = this.materials.get(n);
+                            guiIcon.addAnimationFrame(material);
+                            guiString.addAnimationFrame(material.name());
                         }
                         for (int n = 0; n < i; n++) {
-                            guiIcon.addAnimationFrame(this.materials.get(n));
+                            Material material = this.materials.get(n);
+                            guiIcon.addAnimationFrame(material);
+                            guiString.addAnimationFrame(material.name());
                         }
 
                         GuiButton button = new GuiButton()
-                                .setName(material.name())
+                                .setName(guiString)
                                 .setLore("Index: #" + i)
                                 .setIcon(guiIcon)
                                 .setClickAction((event) -> {

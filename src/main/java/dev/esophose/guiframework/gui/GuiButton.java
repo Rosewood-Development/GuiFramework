@@ -1,6 +1,6 @@
 package dev.esophose.guiframework.gui;
 
-import dev.esophose.guiframework.gui.screen.ISlotable;
+import dev.esophose.guiframework.gui.screen.Slotable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GuiButton implements ITickable, ISlotable {
+public class GuiButton implements Tickable, Slotable {
 
     private GuiIcon icon;
     private int amount;
