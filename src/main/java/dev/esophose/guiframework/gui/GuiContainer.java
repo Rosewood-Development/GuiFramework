@@ -4,12 +4,9 @@ import dev.esophose.guiframework.gui.screen.GuiScreen;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiContainer implements Tickable {

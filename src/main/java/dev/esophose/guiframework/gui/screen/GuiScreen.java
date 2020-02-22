@@ -8,6 +8,7 @@ import dev.esophose.guiframework.gui.Tickable;
 import dev.esophose.guiframework.util.GuiUtil;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -335,11 +336,14 @@ public class GuiScreen implements Tickable {
     }
 
     private void populateInventory(int pageNumber, Inventory inventory) {
-        inventory.clear();
+        boolean newInventory = Arrays.stream(inventory.getStorageContents()).anyMatch(x -> x != null && x.getType() != Material.AIR);
+
+        if (!newInventory)
+            inventory.clear();
 
         if (this.paginatedSection != null || this.editableSection != null) {
-            List<Slotable> pageContents;
-            List<Integer> slots;
+            List<Slotable> pageContents = null;
+            List<Integer> slots = null;
 
             if (this.paginatedSection != null) {
                 int amount = this.paginatedSection.getSlotAmount();
@@ -356,7 +360,7 @@ public class GuiScreen implements Tickable {
 
                 pageContents = result.getPageContents();
                 slots = this.paginatedSection.getSlots();
-            } else {
+            } else if (!newInventory) { // Only fill the editable slots once so we don't end up with duplicated items
                 if (this.paginatedSlotCache.isEmpty()) {
                     int editableItemIndex = 0;
                     for (int i = 1; i <= this.maximumPageNumber; i++) {
@@ -379,11 +383,13 @@ public class GuiScreen implements Tickable {
                 slots = this.editableSection.getSlots();
             }
 
-            for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
-                int slot = slots.get(i);
-                Slotable slotable = pageContents.get(i);
-                if (slotable.isVisible(pageNumber, this.maximumPageNumber))
-                    inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
+            if (slots != null && pageContents != null) {
+                for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
+                    int slot = slots.get(i);
+                    Slotable slotable = pageContents.get(i);
+                    if (slotable.isVisible(pageNumber, this.maximumPageNumber))
+                        inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
+                }
             }
         }
 

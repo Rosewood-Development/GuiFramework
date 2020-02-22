@@ -4,7 +4,6 @@ import dev.esophose.guiframework.GuiFramework;
 import dev.esophose.guiframework.gui.ClickAction;
 import dev.esophose.guiframework.gui.GuiButton;
 import dev.esophose.guiframework.gui.GuiContainer;
-import dev.esophose.guiframework.gui.GuiView;
 import dev.esophose.guiframework.gui.manager.GuiManager;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
 import dev.esophose.guiframework.gui.screen.GuiScreenSection;
@@ -19,6 +18,10 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
@@ -35,8 +38,15 @@ public class InventoryListener implements Listener {
         this.guiManager = guiManager;
     }
 
+    @EventHandler
+    public void onInventoryItemDrag(InventoryDragEvent event) {
+        Bukkit.broadcastMessage(event.getEventName());
+    }
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
+        Bukkit.broadcastMessage(event.getEventName() + " | " + event.getAction() + " | " + event.getClick());
+
         Inventory inventory = event.getView().getTopInventory();
         Player player = (Player) event.getWhoClicked();
 
@@ -54,7 +64,7 @@ public class InventoryListener implements Listener {
 
         if (clickedScreen == null)
             return;
-
+        // TODO: Handle trying to move items from the bottom inventory to non-editable areas
         GuiScreenSection editableSection = clickedScreen.getEditableSection();
         if (editableSection != null && editableSection.getSlots().contains(event.getSlot())) {
             // TODO: Validate only moving specific items
@@ -62,9 +72,11 @@ public class InventoryListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+
+            return;
         } else {
             event.setCancelled(true);
-            if (inventory != event.getClickedInventory() || !this.validButtonClickTypes.contains(event.getClick()) || !this.validButtonInventoryActions.contains(event.getAction()))
+            if (!this.validButtonClickTypes.contains(event.getClick()) || !this.validButtonInventoryActions.contains(event.getAction()))
                 return;
         }
 
