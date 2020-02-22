@@ -183,7 +183,6 @@ public class GuiContainer implements Tickable {
         if (this.currentTick >= this.tickRate) {
             this.currentTick = 0;
             this.screens.values().forEach(GuiScreen::tick);
-            this.currentViewers.values().forEach(GuiView::refresh);
         }
     }
 

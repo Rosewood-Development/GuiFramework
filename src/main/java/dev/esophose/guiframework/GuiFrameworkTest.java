@@ -179,7 +179,7 @@ public class GuiFrameworkTest extends JavaPlugin {
                     .setClickAction(event -> {
                         numberFlipped.incrementAndGet();
                         coinFlip.set(Math.random() > 0.5);
-                        return ClickAction.REFRESH;
+                        return ClickAction.NOTHING;
                     }))
                 .addButtonAt(GuiUtil.ROW_1_START, new GuiButton()
                     .setIcon(Material.ARROW)

@@ -302,24 +302,9 @@ public class GuiScreen implements Tickable {
      * @param pageNumber The page number to get
      * @return The Inventory with the page's content
      */
-    @NotNull
     public Inventory getInventory(int pageNumber) {
-        return this.getInventory(pageNumber, false);
-    }
-
-    /**
-     * Gets the Inventory for a page on this screen
-     *
-     * @param pageNumber The page number to get
-     * @param forceRefresh Whether or not to forcefully refresh the inventory
-     * @return The Inventory with the page's content
-     */
-    public Inventory getInventory(int pageNumber, boolean forceRefresh) {
         if (this.inventories.containsKey(pageNumber)) {
-            Inventory inventory = this.inventories.get(pageNumber);
-            if (forceRefresh)
-                this.populateInventory(pageNumber, inventory);
-            return inventory;
+            return this.inventories.get(pageNumber);
         }
 
         Inventory inventory = this.createInventory(pageNumber);

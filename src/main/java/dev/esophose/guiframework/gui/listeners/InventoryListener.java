@@ -78,9 +78,6 @@ public class InventoryListener implements Listener {
             case CLOSE:
                 player.closeInventory();
                 break;
-            case REFRESH:
-                clickedContainer.getCurrentViewers().values().forEach(GuiView::refresh);
-                break;
             case PAGE_FIRST:
                 clickedContainer.firstPage(player);
                 break;
