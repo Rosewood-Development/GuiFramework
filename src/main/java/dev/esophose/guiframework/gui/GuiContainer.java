@@ -4,9 +4,12 @@ import dev.esophose.guiframework.gui.screen.GuiScreen;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiContainer implements Tickable {
@@ -42,6 +45,10 @@ public class GuiContainer implements Tickable {
         return this.tickRate;
     }
 
+    public void onViewersLeave() {
+        this.screens.values().forEach(GuiScreen::onViewersLeave);
+    }
+
     /**
      * Opens the Gui for a player at a specific page number
      *
@@ -74,6 +81,20 @@ public class GuiContainer implements Tickable {
      */
     public void runCloseFor(@NotNull Player player) {
         this.currentViewers.remove(player.getUniqueId());
+        if (this.currentViewers.isEmpty())
+            this.screens.values().forEach(GuiScreen::onViewersLeave);
+    }
+
+    public void firstPage(@NotNull Player player) {
+        if (!this.currentViewers.containsKey(player.getUniqueId()))
+            return;
+
+        GuiView view = this.currentViewers.get(player.getUniqueId());
+        if (view.getViewingPage() == 1)
+            return;
+
+        view.setViewingPage(1);
+        player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 
     public void pageBackwards(@NotNull Player player) {
@@ -97,6 +118,18 @@ public class GuiContainer implements Tickable {
             return;
 
         view.setViewingPage(view.getViewingPage() + 1);
+        player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+    }
+
+    public void lastPage(@NotNull Player player) {
+        if (!this.currentViewers.containsKey(player.getUniqueId()))
+            return;
+
+        GuiView view = this.currentViewers.get(player.getUniqueId());
+        if (view.getViewingPage() == 1)
+            return;
+
+        view.setViewingPage(view.getViewingScreen().getMaximumPageNumber());
         player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 

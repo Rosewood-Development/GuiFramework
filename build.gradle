@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     // Spigot
-    implementation 'org.spigotmc:spigot:1.15.2-R0.1-20200202.085145-8'
+    implementation 'org.spigotmc:spigot:1.15.2-R0.1-SNAPSHOT'
 
     // JetBrains Annotations
     implementation 'org.jetbrains:annotations:13.0'

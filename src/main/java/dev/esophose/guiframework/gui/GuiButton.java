@@ -77,13 +77,6 @@ public class GuiButton implements Tickable, Slotable {
     //region Normal Setters
 
     @NotNull
-    public GuiButton setIcon(@NotNull Material iconMaterial, byte iconData) {
-        this.icon = new GuiIcon(iconMaterial, iconData);
-
-        return this;
-    }
-
-    @NotNull
     public GuiButton setIcon(@NotNull Material iconMaterial) {
         this.icon = new GuiIcon(iconMaterial);
 
@@ -298,7 +291,7 @@ public class GuiButton implements Tickable, Slotable {
     @NotNull
     public ItemStack getItemStack() {
         GuiIcon icon = this.getIcon();
-        this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount(), icon.getData());
+        this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
 
         ItemMeta itemMeta = this.itemStack.getItemMeta();
         if (itemMeta == null)

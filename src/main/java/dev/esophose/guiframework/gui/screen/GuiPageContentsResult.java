@@ -3,6 +3,7 @@ package dev.esophose.guiframework.gui.screen;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bukkit.inventory.ItemStack;
 
 public class GuiPageContentsResult {
 
@@ -29,6 +30,10 @@ public class GuiPageContentsResult {
 
     public void addPageContent(Slotable content) {
         this.pageContents.add(content);
+    }
+
+    public void addPageContent(ItemStack itemStack) {
+        this.addPageContent(new GuiItemStack(itemStack));
     }
 
     public List<Slotable> getPageContents() {

@@ -4,13 +4,19 @@ import dev.esophose.guiframework.GuiFramework;
 import dev.esophose.guiframework.gui.ClickAction;
 import dev.esophose.guiframework.gui.GuiButton;
 import dev.esophose.guiframework.gui.GuiContainer;
+import dev.esophose.guiframework.gui.GuiView;
 import dev.esophose.guiframework.gui.manager.GuiManager;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.GuiScreenSection;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -20,6 +26,10 @@ import org.bukkit.inventory.Inventory;
 public class InventoryListener implements Listener {
 
     private GuiManager guiManager;
+    private List<ClickType> validEditClickTypes = Arrays.asList(ClickType.CONTROL_DROP, ClickType.DOUBLE_CLICK, ClickType.DROP, ClickType.LEFT, ClickType.MIDDLE, ClickType.NUMBER_KEY, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
+    private List<ClickType> validButtonClickTypes = Arrays.asList(ClickType.LEFT, ClickType.MIDDLE, ClickType.RIGHT);
+    private List<InventoryAction> validEditInventoryActions = Arrays.asList(InventoryAction.DROP_ALL_CURSOR, InventoryAction.DROP_ALL_SLOT, InventoryAction.DROP_ONE_CURSOR, InventoryAction.DROP_ONE_SLOT, InventoryAction.MOVE_TO_OTHER_INVENTORY, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME, InventoryAction.PLACE_ALL, InventoryAction.PLACE_ONE, InventoryAction.PLACE_SOME, InventoryAction.SWAP_WITH_CURSOR);
+    private List<InventoryAction> validButtonInventoryActions = Arrays.asList(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME);
 
     public InventoryListener(GuiManager guiManager) {
         this.guiManager = guiManager;
@@ -45,10 +55,18 @@ public class InventoryListener implements Listener {
         if (clickedScreen == null)
             return;
 
-        event.setCancelled(true);
-
-        if (inventory != event.getClickedInventory())
-            return;
+        GuiScreenSection editableSection = clickedScreen.getEditableSection();
+        if (editableSection != null && editableSection.getSlots().contains(event.getSlot())) {
+            // TODO: Validate only moving specific items
+            if (!this.validEditClickTypes.contains(event.getClick()) || !this.validEditInventoryActions.contains(event.getAction())) {
+                event.setCancelled(true);
+                return;
+            }
+        } else {
+            event.setCancelled(true);
+            if (inventory != event.getClickedInventory() || !this.validButtonClickTypes.contains(event.getClick()) || !this.validButtonInventoryActions.contains(event.getAction()))
+                return;
+        }
 
         GuiButton clickedButton = clickedScreen.getButtonOnInventoryPage(inventory, event.getSlot());
         if (clickedButton == null || !clickedScreen.isButtonOnInventoryPageVisible(inventory, event.getSlot()))
@@ -61,13 +79,19 @@ public class InventoryListener implements Listener {
                 player.closeInventory();
                 break;
             case REFRESH:
-                clickedContainer.getCurrentViewers().get(player.getUniqueId()).refresh();
+                clickedContainer.getCurrentViewers().values().forEach(GuiView::refresh);
+                break;
+            case PAGE_FIRST:
+                clickedContainer.firstPage(player);
                 break;
             case PAGE_BACKWARDS:
                 clickedContainer.pageBackwards(player);
                 break;
             case PAGE_FORWARDS:
                 clickedContainer.pageForwards(player);
+                break;
+            case PAGE_LAST:
+                clickedContainer.lastPage(player);
                 break;
             case TRANSITION_BACKWARDS:
                 clickedContainer.transitionBackwards(player);

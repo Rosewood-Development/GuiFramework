@@ -16,11 +16,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -140,7 +142,6 @@ public class GuiFrameworkTest extends JavaPlugin {
                     .setName("&eForwards")
                     .setIcon(Material.ARROW)
                     .setClickAction(event -> ClickAction.TRANSITION_FORWARDS));
-        container.addScreen(screen);
 
         GuiScreen screen2 = new GuiScreen(container, GuiSize.DYNAMIC)
                 .setTitle("Coin flip game")
@@ -180,12 +181,47 @@ public class GuiFrameworkTest extends JavaPlugin {
                         coinFlip.set(Math.random() > 0.5);
                         return ClickAction.REFRESH;
                     }))
-                .addButtonAt(GuiUtil.ROW_1_END, new GuiButton()
+                .addButtonAt(GuiUtil.ROW_1_START, new GuiButton()
                     .setIcon(Material.ARROW)
                     .setName("&eBack")
-                    .setClickAction(event -> ClickAction.TRANSITION_BACKWARDS));
+                    .setClickAction(event -> ClickAction.TRANSITION_BACKWARDS))
+                .addButtonAt(GuiUtil.ROW_1_END, new GuiButton()
+                        .setName("&eForwards")
+                        .setIcon(Material.ARROW)
+                        .setClickAction(event -> ClickAction.TRANSITION_FORWARDS));
 
+        GuiScreen screen3 = new GuiScreen(container, GuiSize.DYNAMIC)
+                .setEditableSection(paginatedSection, this.materials.stream().map(ItemStack::new).collect(Collectors.toList()), items -> {
+                    Bukkit.broadcastMessage(items.size() + "");
+                })
+                .addButtonAt(GuiUtil.ROW_6_START, new GuiButton()
+                        .setName("Previous Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
+                        .setLore("Go back a page")
+                        .setIcon(Material.PAPER)
+                        .setClickAction(event -> ClickAction.PAGE_BACKWARDS)
+                        .setClickSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
+                        .setFlags(GuiButtonFlag.HIDE_IF_FIRST_PAGE))
+                .addButtonAt(GuiUtil.ROW_6_END, new GuiButton()
+                        .setName("Next Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
+                        .setLore("Go forward a page")
+                        .setIcon(Material.PAPER)
+                        .setClickAction(event -> ClickAction.PAGE_FORWARDS)
+                        .setClickSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
+                        .setFlags(GuiButtonFlag.HIDE_IF_LAST_PAGE))
+                .addButtonAt(GuiUtil.ROW_6_START + 4, new GuiButton()
+                        .setName("Exit")
+                        .setLore("Closes the GUI")
+                        .setIcon(Material.BARRIER)
+                        .setClickAction(event -> ClickAction.CLOSE)
+                        .setClickSound(Sound.ENTITY_VILLAGER_NO))
+                .addButtonAt(GuiUtil.ROW_1_END + 4, new GuiButton()
+                        .setIcon(Material.ARROW)
+                        .setName("&eBack")
+                        .setClickAction(event -> ClickAction.TRANSITION_BACKWARDS));
+
+        container.addScreen(screen);
         container.addScreen(screen2);
+        container.addScreen(screen3);
 
         guiFramework.getGuiManager().registerGui(container);
 
