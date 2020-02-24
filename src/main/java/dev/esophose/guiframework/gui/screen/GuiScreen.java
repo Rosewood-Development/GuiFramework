@@ -318,7 +318,7 @@ public class GuiScreen implements Tickable {
         return pageNumber < this.maximumPageNumber;
     }
 
-    private void updateInventories() {
+    public void updateInventories() {
         Set<Integer> pagesBeingViewed = this.parentContainer.getCurrentViewers()
                 .values()
                 .stream()

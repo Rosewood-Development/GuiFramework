@@ -2,6 +2,7 @@ package dev.esophose.guiframework.gui;
 
 public enum ClickAction {
     NOTHING,
+    REFRESH,
     CLOSE,
     PAGE_FIRST,
     PAGE_BACKWARDS,

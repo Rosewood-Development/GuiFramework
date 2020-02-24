@@ -87,6 +87,9 @@ public class InventoryListener implements Listener {
         ClickAction clickAction = clickedButton.click(event);
 
         switch (clickAction) {
+            case REFRESH:
+                clickedScreen.updateInventories();
+                break;
             case CLOSE:
                 player.closeInventory();
                 break;

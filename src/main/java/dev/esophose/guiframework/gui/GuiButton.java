@@ -126,6 +126,13 @@ public class GuiButton implements Tickable, Slotable {
     }
 
     @NotNull
+    public GuiButton setLore(@NotNull List<String> lore) {
+        this.lore = lore.stream().map(GuiString::new).collect(Collectors.toList());
+
+        return this;
+    }
+
+    @NotNull
     public GuiButton setGlowing(boolean glowing) {
         this.glowing = glowing;
 
