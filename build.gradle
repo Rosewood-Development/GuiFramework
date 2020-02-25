@@ -17,10 +17,10 @@ repositories {
 
 dependencies {
     // Spigot
-    implementation 'org.spigotmc:spigot:1.15.2-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.15.2-R0.1-SNAPSHOT'
 
     // JetBrains Annotations
-    implementation 'org.jetbrains:annotations:13.0'
+    compileOnly 'org.jetbrains:annotations:13.0'
 }
 
 publishing {
