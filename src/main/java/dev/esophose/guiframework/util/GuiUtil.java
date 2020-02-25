@@ -10,6 +10,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class GuiUtil {
 
+    private GuiUtil() {
+
+    }
+
     public static final int ROW_1_START = 0;
     public static final int ROW_2_START = 9;
     public static final int ROW_3_START = 18;

@@ -1,9 +1,0 @@
-name: GuiFrameworkTest
-main: dev.esophose.guiframework.GuiFrameworkTest
-version: @version@
-api-version: 1.13
-description: A GuiFramework test plugin
-author: Esophose
-commands:
-  gui:
-    description: GuiFramework test command.
