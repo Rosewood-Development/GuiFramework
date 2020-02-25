@@ -6,10 +6,14 @@ import dev.esophose.guiframework.gui.GuiButton;
 import dev.esophose.guiframework.gui.GuiContainer;
 import dev.esophose.guiframework.gui.manager.GuiManager;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.GuiScreenEditFilters;
 import dev.esophose.guiframework.gui.screen.GuiScreenSection;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,58 +23,147 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 
 public class InventoryListener implements Listener {
 
     private GuiManager guiManager;
-    private List<ClickType> validEditClickTypes = Arrays.asList(ClickType.CONTROL_DROP, ClickType.DOUBLE_CLICK, ClickType.DROP, ClickType.LEFT, ClickType.MIDDLE, ClickType.NUMBER_KEY, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
-    private List<ClickType> validButtonClickTypes = Arrays.asList(ClickType.LEFT, ClickType.MIDDLE, ClickType.RIGHT);
-    private List<InventoryAction> validEditInventoryActions = Arrays.asList(InventoryAction.DROP_ALL_CURSOR, InventoryAction.DROP_ALL_SLOT, InventoryAction.DROP_ONE_CURSOR, InventoryAction.DROP_ONE_SLOT, InventoryAction.MOVE_TO_OTHER_INVENTORY, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME, InventoryAction.PLACE_ALL, InventoryAction.PLACE_ONE, InventoryAction.PLACE_SOME, InventoryAction.SWAP_WITH_CURSOR);
-    private List<InventoryAction> validButtonInventoryActions = Arrays.asList(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME);
+    private List<ClickType> validEditClickTypes, validButtonClickTypes;
+    private List<InventoryAction> validEditInventoryActions, validButtonInventoryActions;
 
     public InventoryListener(GuiManager guiManager) {
         this.guiManager = guiManager;
+        this.validEditClickTypes = Arrays.asList(ClickType.CONTROL_DROP, ClickType.CREATIVE, ClickType.DOUBLE_CLICK, ClickType.DROP, ClickType.LEFT, ClickType.MIDDLE, ClickType.NUMBER_KEY, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
+        this.validButtonClickTypes = Arrays.asList(ClickType.LEFT, ClickType.MIDDLE, ClickType.RIGHT);
+        this.validEditInventoryActions = Arrays.asList(InventoryAction.DROP_ALL_CURSOR, InventoryAction.DROP_ALL_SLOT, InventoryAction.DROP_ONE_CURSOR, InventoryAction.DROP_ONE_SLOT, InventoryAction.MOVE_TO_OTHER_INVENTORY, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME, InventoryAction.PLACE_ALL, InventoryAction.PLACE_ONE, InventoryAction.PLACE_SOME, InventoryAction.SWAP_WITH_CURSOR);
+        this.validButtonInventoryActions = Arrays.asList(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME);
     }
 
     @EventHandler
     public void onInventoryItemDrag(InventoryDragEvent event) {
-        Bukkit.broadcastMessage(event.getEventName());
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent event) {
-        Bukkit.broadcastMessage(event.getEventName() + " | " + event.getAction() + " | " + event.getClick());
-
+        // Make sure drags are only a part of either the player's inventory or the editable section of the gui
         Inventory inventory = event.getView().getTopInventory();
-        Player player = (Player) event.getWhoClicked();
+        GuiContainer clickedContainer = this.getGuiContainer(inventory);
+        GuiScreen clickedScreen = this.getGuiScreen(inventory);
+        if (clickedContainer == null || clickedScreen == null || !(event.getWhoClicked() instanceof Player))
+            return;
 
-        GuiScreen clickedScreen = null;
-        GuiContainer clickedContainer = null;
-        for (GuiContainer container : this.guiManager.getActiveGuis()) {
-            for (GuiScreen screen : container.getScreens()) {
-                if (screen.containsInventory(inventory)) {
-                    clickedScreen = screen;
-                    clickedContainer = container;
-                    break;
+        GuiScreenSection editableSection = clickedScreen.getEditableSection();
+        if (editableSection != null) {
+            // Check filters
+            Material draggedType = event.getOldCursor().getType();
+            GuiScreenEditFilters filters = clickedScreen.getEditFilters();
+            if (filters != null && !filters.canInteractWith(draggedType))
+                event.setCancelled(true);
+
+            // Check if we dragged into non-editable slots
+            InventoryView view = event.getView();
+            Map<Integer, ItemStack> newItems = event.getNewItems();
+            Map<Integer, ItemStack> rejectedItems = new HashMap<>();
+            for (int slot : newItems.keySet()) {
+                if (view.getInventory(slot) == view.getTopInventory() && !editableSection.containsSlot(slot)) {
+                    ItemStack oldItem = view.getItem(slot);
+                    if (oldItem == null)
+                        oldItem = new ItemStack(draggedType, 0);
+                    ItemStack newItem = newItems.get(slot);
+                    ItemStack adjustedItem = newItem.clone();
+                    adjustedItem.setAmount(newItem.getAmount() - oldItem.getAmount());
+                    rejectedItems.put(slot, adjustedItem);
                 }
             }
+
+            int totalRejected = rejectedItems.values().stream().mapToInt(ItemStack::getAmount).sum();
+            if (totalRejected > 0) {
+                // Recreate the event ourselves, except exclude the non-editable slots
+                event.setCancelled(true);
+
+                Player player = (Player) event.getWhoClicked();
+
+                // Put rejected items back onto the cursor
+                Bukkit.getScheduler().runTask(GuiFramework.getInstance().getHookedPlugin(), () -> {
+                    ItemStack newCursor = event.getCursor();
+                    if (newCursor == null || newCursor.getType() == Material.AIR)
+                        newCursor = new ItemStack(draggedType, 0);
+                    player.setItemOnCursor(new ItemStack(draggedType, newCursor.getAmount() + totalRejected));
+                });
+
+                // Adjust the edit slot amounts
+                newItems.keySet().stream().filter(x -> !rejectedItems.containsKey(x)).forEach(slot -> {
+                    ItemStack additive = newItems.get(slot);
+                    ItemStack original = view.getItem(slot);
+                    if (original == null || original.getType() == Material.AIR) {
+                        view.setItem(slot, new ItemStack(draggedType, additive.getAmount()));
+                    } else {
+                        original = original.clone();
+                        original.setAmount(original.getAmount() + additive.getAmount());
+                        view.setItem(slot, original);
+                    }
+                });
+            }
+        } else {
+            boolean draggedIntoTop = event.getInventorySlots().stream().anyMatch(x -> event.getView().getSlotType(x) == SlotType.CONTAINER);
+            if (draggedIntoTop)
+                event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onInventoryClick(InventoryClickEvent event) {
+        Inventory inventory = event.getView().getTopInventory();
+        Inventory clickedInventory = event.getClickedInventory();
+        if (clickedInventory == null || !(event.getWhoClicked() instanceof Player))
+            return;
+
+        // TODO: Custom MOVE_TO_OTHER_INVENTORY handling (remember double shift click moves all of one type)
+        if (clickedInventory == event.getView().getBottomInventory() && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            event.setCancelled(true);
+            return;
         }
 
-        if (clickedScreen == null)
+        if (clickedInventory != inventory)
             return;
-        // TODO: Handle trying to move items from the bottom inventory to non-editable areas
+
+        GuiContainer clickedContainer = this.getGuiContainer(inventory);
+        GuiScreen clickedScreen = this.getGuiScreen(inventory);
+        if (clickedContainer == null || clickedScreen == null)
+            return;
+
         GuiScreenSection editableSection = clickedScreen.getEditableSection();
-        if (editableSection != null && editableSection.getSlots().contains(event.getSlot())) {
-            // TODO: Validate only moving specific items
+        if (editableSection != null && editableSection.containsSlot(event.getSlot())) {
+            // Validate the click action used was valid
             if (!this.validEditClickTypes.contains(event.getClick()) || !this.validEditInventoryActions.contains(event.getAction())) {
                 event.setCancelled(true);
                 return;
+            }
+
+            // Validate they can actually move the item type they tried to interact with
+            GuiScreenEditFilters editFilters = clickedScreen.getEditFilters();
+            if (editFilters != null) {
+                ItemStack cursor = event.getCursor();
+                ItemStack current = event.getCurrentItem();
+
+                boolean filtered = false;
+                if (cursor != null) {
+                    Material type = cursor.getType();
+                    if (type != Material.AIR && !editFilters.canInteractWith(type))
+                        filtered = true;
+                }
+
+                if (!filtered && current != null) {
+                    Material type = current.getType();
+                    if (type != Material.AIR && !editFilters.canInteractWith(type))
+                        filtered = true;
+                }
+
+                if (filtered) {
+                    event.setCancelled(true);
+                    return;
+                }
             }
 
             return;
@@ -84,8 +177,8 @@ public class InventoryListener implements Listener {
         if (clickedButton == null || !clickedScreen.isButtonOnInventoryPageVisible(inventory, event.getSlot()))
             return;
 
+        Player player = (Player) event.getWhoClicked();
         ClickAction clickAction = clickedButton.click(event);
-
         switch (clickAction) {
             case REFRESH:
                 clickedScreen.updateInventories();
@@ -149,7 +242,7 @@ public class InventoryListener implements Listener {
     }
 
     /**
-     * Gets the parent of the given Inventory
+     * Gets the parent container of the given Inventory
      *
      * @param inventory The Inventory to get the container of
      * @return The containing GuiContainer, or null if none found
@@ -159,6 +252,20 @@ public class InventoryListener implements Listener {
             for (GuiScreen screen : container.getScreens())
                 if (screen.containsInventory(inventory))
                     return container;
+        return null;
+    }
+
+    /**
+     * Gets the parent screen of the given Inventory
+     *
+     * @param inventory The Inventory to get the container of
+     * @return The containing GuiScreen, or null if none found
+     */
+    private GuiScreen getGuiScreen(Inventory inventory) {
+        for (GuiContainer container : this.guiManager.getActiveGuis())
+            for (GuiScreen screen : container.getScreens())
+                if (screen.containsInventory(inventory))
+                    return screen;
         return null;
     }
 

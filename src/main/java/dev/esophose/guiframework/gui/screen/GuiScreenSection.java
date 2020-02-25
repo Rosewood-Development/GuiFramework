@@ -33,6 +33,16 @@ public class GuiScreenSection {
     }
 
     /**
+     * Checks if a slot is in this GuiScreenSection
+     *
+     * @param slot The slot to check
+     * @return true if the slot is in this section, otherwise false
+     */
+    public boolean containsSlot(int slot) {
+        return this.slots.contains(slot);
+    }
+
+    /**
      * @return the number of slots in this section
      */
     public int getSlotAmount() {

@@ -9,6 +9,7 @@ import dev.esophose.guiframework.gui.GuiSize;
 import dev.esophose.guiframework.gui.GuiString;
 import dev.esophose.guiframework.gui.screen.GuiPageContentsResult;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.GuiScreenEditFilters;
 import dev.esophose.guiframework.gui.screen.GuiScreenSection;
 import dev.esophose.guiframework.util.GuiUtil;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -189,37 +189,29 @@ public class GuiFrameworkTest extends JavaPlugin {
                         .setIcon(Material.ARROW)
                         .setClickAction(event -> ClickAction.TRANSITION_FORWARDS));
 
-        GuiScreen screen3 = new GuiScreen(container, GuiSize.DYNAMIC)
-                .setEditableSection(paginatedSection, this.materials.stream().map(ItemStack::new).collect(Collectors.toList()), items -> {
-                    Bukkit.broadcastMessage(items.size() + "");
+        Material stackType = Material.DIAMOND_BLOCK;
+        int stackSize = 500;
+        List<ItemStack> stackItems = GuiUtil.getMaterialAmountAsItemStacks(stackType, 500);
+        GuiScreenEditFilters filters = new GuiScreenEditFilters();
+        filters.setWhitelist(Material.DIAMOND_BLOCK);
+
+        GuiScreen screen3 = new GuiScreen(container, GuiSize.ROWS_SIX)
+                .setTitle("Edit Diamond Block Stack")
+                .setEditableSection(paginatedSection, stackItems, editedItems -> {
+                    int total = editedItems.stream().mapToInt(ItemStack::getAmount).sum();
+                    int change = total - stackSize;
+                    player.sendMessage("Stack size offset: " + change);
                 })
-                .addButtonAt(GuiUtil.ROW_6_START, new GuiButton()
-                        .setName("Previous Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
-                        .setLore("Go back a page")
-                        .setIcon(Material.PAPER)
-                        .setClickAction(event -> ClickAction.PAGE_BACKWARDS)
-                        .setClickSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
-                        .setFlags(GuiButtonFlag.HIDE_IF_FIRST_PAGE))
-                .addButtonAt(GuiUtil.ROW_6_END, new GuiButton()
-                        .setName("Next Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")")
-                        .setLore("Go forward a page")
-                        .setIcon(Material.PAPER)
-                        .setClickAction(event -> ClickAction.PAGE_FORWARDS)
-                        .setClickSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP)
-                        .setFlags(GuiButtonFlag.HIDE_IF_LAST_PAGE))
+                .setEditFilters(filters)
                 .addButtonAt(GuiUtil.ROW_6_START + 4, new GuiButton()
                         .setName("Exit")
                         .setLore("Closes the GUI")
                         .setIcon(Material.BARRIER)
                         .setClickAction(event -> ClickAction.CLOSE)
-                        .setClickSound(Sound.ENTITY_VILLAGER_NO))
-                .addButtonAt(GuiUtil.ROW_1_END + 4, new GuiButton()
-                        .setIcon(Material.ARROW)
-                        .setName("&eBack")
-                        .setClickAction(event -> ClickAction.TRANSITION_BACKWARDS));
+                        .setClickSound(Sound.ENTITY_VILLAGER_NO));
 
-        container.addScreen(screen);
-        container.addScreen(screen2);
+        //container.addScreen(screen);
+        //container.addScreen(screen2);
         container.addScreen(screen3);
 
         guiFramework.getGuiManager().registerGui(container);

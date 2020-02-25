@@ -34,6 +34,7 @@ public class GuiScreen implements Tickable {
     private GuiScreenSection paginatedSection;
     private GuiScreenSection editableSection;
     private List<ItemStack> editableItems;
+    private GuiScreenEditFilters editFilters;
     private Consumer<List<ItemStack>> editFinalizationCallback;
     private int maximumPageNumber;
     private PageContentsRequester paginatedContentsRequester;
@@ -112,6 +113,13 @@ public class GuiScreen implements Tickable {
     }
 
     @NotNull
+    public GuiScreen setEditFilters(GuiScreenEditFilters editFilters) {
+        this.editFilters = editFilters;
+
+        return this;
+    }
+
+    @NotNull
     public GuiScreen addItemStackAt(int slot, @NotNull ItemStack content) {
         this.permanentSlots.put(slot, new GuiItemStack(content));
 
@@ -182,10 +190,15 @@ public class GuiScreen implements Tickable {
         return this.editableSection;
     }
 
+    @Nullable
+    public GuiScreenEditFilters getEditFilters() {
+        return this.editFilters;
+    }
+
     public void onViewersLeave() {
         if (this.editFinalizationCallback != null) {
             List<ItemStack> items = new ArrayList<>();
-            for (int i = 1; i < this.maximumPageNumber; i++) {
+            for (int i = 1; i <= this.maximumPageNumber; i++) {
                 Inventory inventory;
                 if (this.inventories.containsKey(i)) {
                     inventory = this.inventories.get(i);
