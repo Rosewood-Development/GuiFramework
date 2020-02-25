@@ -42,10 +42,6 @@ public class GuiContainer implements Tickable {
         return this.tickRate;
     }
 
-    public void onViewersLeave() {
-        this.screens.values().forEach(GuiScreen::onViewersLeave);
-    }
-
     /**
      * Opens the Gui for a player at a specific page number
      *
@@ -79,7 +75,7 @@ public class GuiContainer implements Tickable {
     public void runCloseFor(@NotNull Player player) {
         this.currentViewers.remove(player.getUniqueId());
         if (this.currentViewers.isEmpty())
-            this.screens.values().forEach(GuiScreen::onViewersLeave);
+            this.screens.values().forEach(x -> x.onViewersLeave(player));
     }
 
     public void firstPage(@NotNull Player player) {
@@ -233,6 +229,13 @@ public class GuiContainer implements Tickable {
      */
     public boolean hasViewers() {
         return !this.currentViewers.isEmpty();
+    }
+
+    /**
+     * Closes the open inventory of all viewers
+     */
+    public void closeViewers() {
+        this.currentViewers.values().stream().map(GuiView::getViewer).forEach(Player::closeInventory);
     }
 
 }

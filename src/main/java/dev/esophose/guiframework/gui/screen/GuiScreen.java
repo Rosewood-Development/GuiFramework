@@ -14,11 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -35,7 +37,7 @@ public class GuiScreen implements Tickable {
     private GuiScreenSection editableSection;
     private List<ItemStack> editableItems;
     private GuiScreenEditFilters editFilters;
-    private Consumer<List<ItemStack>> editFinalizationCallback;
+    private BiConsumer<Player, List<ItemStack>> editFinalizationCallback;
     private int maximumPageNumber;
     private PageContentsRequester paginatedContentsRequester;
     private Map<Integer, GuiPageContentsResult> paginatedSlotCache;
@@ -85,12 +87,12 @@ public class GuiScreen implements Tickable {
     }
 
     @NotNull
-    public GuiScreen setEditableSection(int beginIndex, int endIndex, @NotNull Collection<ItemStack> items, Consumer<List<ItemStack>> editFinalizationCallback) {
+    public GuiScreen setEditableSection(int beginIndex, int endIndex, @NotNull Collection<ItemStack> items, BiConsumer<Player, List<ItemStack>> editFinalizationCallback) {
         return this.setEditableSection(new GuiScreenSection(beginIndex, endIndex), items, editFinalizationCallback);
     }
 
     @NotNull
-    public GuiScreen setEditableSection(@NotNull GuiScreenSection guiScreenSection, @NotNull Collection<ItemStack> items, Consumer<List<ItemStack>> editFinalizationCallback) {
+    public GuiScreen setEditableSection(@NotNull GuiScreenSection guiScreenSection, @NotNull Collection<ItemStack> items, BiConsumer<Player, List<ItemStack>> editFinalizationCallback) {
         if (this.paginatedSection != null) {
             Bukkit.getLogger().warning("[GuiFramework] Developer error: Tried to create an editable section when a paginated section was already set. The paginated section has been removed.");
             this.paginatedSection = null;
@@ -195,7 +197,7 @@ public class GuiScreen implements Tickable {
         return this.editFilters;
     }
 
-    public void onViewersLeave() {
+    public void onViewersLeave(Player lastViewer) {
         if (this.editFinalizationCallback != null) {
             List<ItemStack> items = new ArrayList<>();
             for (int i = 1; i <= this.maximumPageNumber; i++) {
@@ -214,7 +216,7 @@ public class GuiScreen implements Tickable {
                 }
             }
 
-            this.editFinalizationCallback.accept(items);
+            this.editFinalizationCallback.accept(lastViewer, items);
         }
     }
 
