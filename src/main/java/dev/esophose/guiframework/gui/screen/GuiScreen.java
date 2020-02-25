@@ -400,16 +400,22 @@ public class GuiScreen implements Tickable {
                 for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
                     int slot = slots.get(i);
                     Slotable slotable = pageContents.get(i);
-                    if (slotable.isVisible(pageNumber, this.maximumPageNumber))
-                        inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
+                    boolean isVisible = slotable.isVisible(pageNumber, this.maximumPageNumber);
+                    ItemStack itemStack = slotable.getItemStack(isVisible);
+                    if (itemStack == null)
+                        continue;
+                    inventory.setItem(slot, this.applyPageNumberReplacements(itemStack, pageNumber, this.maximumPageNumber));
                 }
             }
         }
 
         for (int slot : this.permanentSlots.keySet()) {
             Slotable slotable = this.permanentSlots.get(slot);
-            if (slotable.isVisible(pageNumber, this.maximumPageNumber))
-                inventory.setItem(slot, this.applyPageNumberReplacements(slotable.getItemStack(), pageNumber, this.maximumPageNumber));
+            boolean isVisible = slotable.isVisible(pageNumber, this.maximumPageNumber);
+            ItemStack itemStack = slotable.getItemStack(isVisible);
+            if (itemStack == null)
+                continue;
+            inventory.setItem(slot, this.applyPageNumberReplacements(itemStack, pageNumber, this.maximumPageNumber));
         }
     }
 

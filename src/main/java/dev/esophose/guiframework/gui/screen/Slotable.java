@@ -2,12 +2,12 @@ package dev.esophose.guiframework.gui.screen;
 
 import dev.esophose.guiframework.gui.Tickable;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface Slotable {
 
-    @NotNull
-    ItemStack getItemStack();
+    @Nullable
+    ItemStack getItemStack(boolean isVisible);
 
     /**
      * Gets if the item is visible

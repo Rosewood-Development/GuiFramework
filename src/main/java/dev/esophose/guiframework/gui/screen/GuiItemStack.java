@@ -12,8 +12,8 @@ public class GuiItemStack implements Slotable {
     }
 
     @Override
-    public ItemStack getItemStack() {
-        return this.itemStack;
+    public ItemStack getItemStack(boolean isVisible) {
+        return isVisible ? this.itemStack : null;
     }
 
 }

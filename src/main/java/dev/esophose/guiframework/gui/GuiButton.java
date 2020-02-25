@@ -31,6 +31,7 @@ public class GuiButton implements Tickable, Slotable {
     private boolean glowing;
     private Sound clickSound;
     private float clickVolume, clickPitch;
+    private ItemStack hiddenReplacement;
 
     private Supplier<GuiIcon> iconSupplier;
     private Supplier<Integer> amountSupplier;
@@ -54,6 +55,7 @@ public class GuiButton implements Tickable, Slotable {
         this.clickSound = null;
         this.clickVolume = 0.5F;
         this.clickPitch = 1.0F;
+        this.hiddenReplacement = null;
 
         this.iconSupplier = null;
         this.amountSupplier = null;
@@ -170,6 +172,13 @@ public class GuiButton implements Tickable, Slotable {
     @NotNull
     public GuiButton setFlags(@NotNull GuiButtonFlag... flags) {
         this.flags = new HashSet<>(Arrays.asList(flags));
+
+        return this;
+    }
+
+    @NotNull
+    public GuiButton setHiddenReplacement(@Nullable ItemStack itemStack) {
+        this.hiddenReplacement = itemStack;
 
         return this;
     }
@@ -295,8 +304,10 @@ public class GuiButton implements Tickable, Slotable {
      * @return An ItemStack with all this button's settings applied
      */
     @Override
-    @NotNull
-    public ItemStack getItemStack() {
+    public ItemStack getItemStack(boolean isVisible) {
+        if (!isVisible)
+            return this.hiddenReplacement;
+
         GuiIcon icon = this.getIcon();
         this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
 
