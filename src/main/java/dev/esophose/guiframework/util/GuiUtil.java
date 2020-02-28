@@ -1,6 +1,7 @@
 package dev.esophose.guiframework.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -40,6 +41,9 @@ public final class GuiUtil {
      */
     public static List<ItemStack> getMaterialAmountAsItemStacks(Material material, int stackSize) {
         int maxStackSize = material.getMaxStackSize();
+        if (maxStackSize == 0)
+            return Collections.emptyList();
+
         int remaining = stackSize;
         List<ItemStack> stackItems = new ArrayList<>();
         while (remaining - maxStackSize > 0) {

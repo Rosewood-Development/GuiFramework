@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -81,6 +82,13 @@ public class GuiButton implements Tickable, Slotable {
     @NotNull
     public GuiButton setIcon(@NotNull Material iconMaterial) {
         this.icon = new GuiIcon(iconMaterial);
+
+        return this;
+    }
+
+    @NotNull
+    public GuiButton setIcon(@NotNull Material iconMaterial, @NotNull Consumer<ItemMeta> itemMetaApplier) {
+        this.icon = new GuiIcon(iconMaterial, itemMetaApplier);
 
         return this;
     }
@@ -311,10 +319,7 @@ public class GuiButton implements Tickable, Slotable {
         GuiIcon icon = this.getIcon();
         this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
 
-        ItemMeta itemMeta = this.itemStack.getItemMeta();
-        if (itemMeta == null)
-            return this.itemStack;
-
+        ItemMeta itemMeta = icon.getItemMeta().clone();
         itemMeta.setDisplayName(this.getName().toString());
         itemMeta.setLore(this.getLore().stream().map(GuiString::toString).collect(Collectors.toList()));
         itemMeta.addItemFlags(ItemFlag.values());
