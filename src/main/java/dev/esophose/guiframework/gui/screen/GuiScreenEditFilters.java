@@ -16,14 +16,20 @@ public class GuiScreenEditFilters {
         this.blacklist = EnumSet.noneOf(Material.class);
     }
 
-    public void setWhitelist(@NotNull Material... whitelist) {
+    @NotNull
+    public GuiScreenEditFilters setWhitelist(@NotNull Material... whitelist) {
         this.whitelist.clear();
         this.whitelist.addAll(Arrays.asList(whitelist));
+
+        return this;
     }
 
-    public void setBlacklist(@NotNull Material... blacklist) {
+    @NotNull
+    public GuiScreenEditFilters setBlacklist(@NotNull Material... blacklist) {
         this.blacklist.clear();
         this.blacklist.addAll(Arrays.asList(blacklist));
+
+        return this;
     }
 
     @NotNull
