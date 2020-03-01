@@ -115,17 +115,9 @@ public class InventoryListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
         Inventory inventory = event.getView().getTopInventory();
+        Inventory bottomInventory = event.getView().getBottomInventory();
         Inventory clickedInventory = event.getClickedInventory();
         if (clickedInventory == null || !(event.getWhoClicked() instanceof Player))
-            return;
-
-        // TODO: Custom MOVE_TO_OTHER_INVENTORY handling (remember double shift click moves all of one type)
-        if (clickedInventory == event.getView().getBottomInventory() && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (clickedInventory != inventory)
             return;
 
         GuiContainer clickedContainer = this.getGuiContainer(inventory);
@@ -133,7 +125,57 @@ public class InventoryListener implements Listener {
         if (clickedContainer == null || clickedScreen == null)
             return;
 
+        // Handle shift clicking from the bottom inventory to the top
         GuiScreenSection editableSection = clickedScreen.getEditableSection();
+        if (clickedInventory == bottomInventory && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            ItemStack movingItemStack = bottomInventory.getItem(event.getSlot());
+            if (editableSection == null || movingItemStack == null || movingItemStack.getType() == Material.AIR) {
+                event.setCancelled(true);
+                return;
+            }
+
+            // Don't allow moving if it gets filtered
+            Material type = movingItemStack.getType();
+            GuiScreenEditFilters editFilters = clickedScreen.getEditFilters();
+            if (editFilters != null && !editFilters.canInteractWith(type)) {
+                event.setCancelled(true);
+                return;
+            }
+
+            // Move the items to the top inventory
+            int maxStackSize = movingItemStack.getMaxStackSize();
+            int totalRemaining = movingItemStack.getAmount();
+            for (int slot : editableSection.getSlots()) {
+                ItemStack slotItemStack = inventory.getItem(slot);
+                if (slotItemStack == null || slotItemStack.getType() == Material.AIR) {
+                    slotItemStack = new ItemStack(type, totalRemaining);
+                    totalRemaining = 0;
+                } else if (slotItemStack.getType() == type) {
+                    int amountToMove = Math.min(totalRemaining, maxStackSize - slotItemStack.getAmount());
+                    slotItemStack.setAmount(slotItemStack.getAmount() + amountToMove);
+                    totalRemaining -= amountToMove;
+                } else continue;
+                inventory.setItem(slot, slotItemStack);
+
+                if (totalRemaining == 0)
+                    break;
+            }
+
+            // Adjust the ItemStack that actually got moved
+            if (totalRemaining > 0) {
+                movingItemStack.setAmount(totalRemaining);
+                bottomInventory.setItem(event.getSlot(), movingItemStack);
+            } else {
+                bottomInventory.setItem(event.getSlot(), null);
+            }
+
+            event.setCancelled(true);
+            return;
+        }
+
+        if (clickedInventory != inventory)
+            return;
+
         if (editableSection != null && editableSection.containsSlot(event.getSlot())) {
             // Validate the click action used was valid
             if (!this.validEditClickTypes.contains(event.getClick()) || !this.validEditInventoryActions.contains(event.getAction())) {
