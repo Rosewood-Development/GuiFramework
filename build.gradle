@@ -31,8 +31,8 @@ configurations {
 }
 
 dependencies {
-    implementation project(':API')
-    implementation project(':Framework')
+    compileOnly project(':API')
+    compileOnly project(':Framework')
 
     subprojects.each {
         childJars project(it.path)
