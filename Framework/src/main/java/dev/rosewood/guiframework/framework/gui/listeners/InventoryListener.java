@@ -60,7 +60,7 @@ public class InventoryListener implements Listener {
             // Check filters
             Material draggedType = event.getOldCursor().getType();
             FrameworkScreenEditFilters filters = clickedScreen.getEditFilters();
-            if (filters != null && !filters.canInteractWith(draggedType))
+            if (filters != null && !filters.canInteractWith(event.getOldCursor()))
                 event.setCancelled(true);
 
             // Check if we dragged into non-editable slots
@@ -139,7 +139,7 @@ public class InventoryListener implements Listener {
             // Don't allow moving if it gets filtered
             Material type = movingItemStack.getType();
             FrameworkScreenEditFilters editFilters = clickedScreen.getEditFilters();
-            if (editFilters != null && !editFilters.canInteractWith(type)) {
+            if (editFilters != null && !editFilters.canInteractWith(movingItemStack)) {
                 event.setCancelled(true);
                 return;
             }
@@ -194,13 +194,13 @@ public class InventoryListener implements Listener {
                 boolean filtered = false;
                 if (cursor != null) {
                     Material type = cursor.getType();
-                    if (type != Material.AIR && !editFilters.canInteractWith(type))
+                    if (type != Material.AIR && !editFilters.canInteractWith(cursor))
                         filtered = true;
                 }
 
                 if (!filtered && current != null) {
                     Material type = current.getType();
-                    if (type != Material.AIR && !editFilters.canInteractWith(type))
+                    if (type != Material.AIR && !editFilters.canInteractWith(current))
                         filtered = true;
                 }
 

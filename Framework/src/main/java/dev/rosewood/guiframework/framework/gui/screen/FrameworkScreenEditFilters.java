@@ -5,15 +5,19 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
 
     private EnumSet<Material> whitelist;
     private EnumSet<Material> blacklist;
+    private boolean allowModified;
 
     public FrameworkScreenEditFilters() {
         this.whitelist = EnumSet.noneOf(Material.class);
         this.blacklist = EnumSet.noneOf(Material.class);
+        this.allowModified = true;
     }
 
     @Override
@@ -43,11 +47,22 @@ public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
     }
 
     @Override
-    public boolean canInteractWith(Material material) {
-        if (this.blacklist.contains(material))
+    public void setAllowModified(boolean allowModified) {
+        this.allowModified = allowModified;
+    }
+
+    @Override
+    public boolean canInteractWith(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (!this.allowModified && itemMeta != null) {
+            if (itemMeta.hasDisplayName() || itemMeta.hasLore() || itemMeta.hasEnchants() || itemMeta.hasAttributeModifiers())
+                return false;
+        }
+
+        if (this.blacklist.contains(itemStack.getType()))
             return false;
 
-        return this.whitelist.isEmpty() || this.whitelist.contains(material);
+        return this.whitelist.isEmpty() || this.whitelist.contains(itemStack.getType());
     }
 
 }
