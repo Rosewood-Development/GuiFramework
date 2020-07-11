@@ -37,6 +37,13 @@ public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
     }
 
     @Override
+    public FrameworkScreenEditFilters setAllowModified(boolean allowModified) {
+        this.allowModified = allowModified;
+
+        return this;
+    }
+
+    @Override
     public Set<Material> getWhitelist() {
         return this.whitelist;
     }
@@ -44,11 +51,6 @@ public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
     @Override
     public Set<Material> getBlacklist() {
         return this.blacklist;
-    }
-
-    @Override
-    public void setAllowModified(boolean allowModified) {
-        this.allowModified = allowModified;
     }
 
     @Override

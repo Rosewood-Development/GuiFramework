@@ -13,18 +13,18 @@ public interface GuiScreenEditFilters {
     @NotNull
     GuiScreenEditFilters setBlacklist(@NotNull Material... blacklist);
 
-    @NotNull
-    Set<Material> getWhitelist();
-
-    @NotNull
-    Set<Material> getBlacklist();
-
     /**
      * Should modified items (those with lore, display name, glow, etc) be allowed?
      *
      * @param allowModified true to allow, false to disallow
      */
-    void setAllowModified(boolean allowModified);
+    GuiScreenEditFilters setAllowModified(boolean allowModified);
+
+    @NotNull
+    Set<Material> getWhitelist();
+
+    @NotNull
+    Set<Material> getBlacklist();
 
     boolean canInteractWith(ItemStack itemStack);
 
