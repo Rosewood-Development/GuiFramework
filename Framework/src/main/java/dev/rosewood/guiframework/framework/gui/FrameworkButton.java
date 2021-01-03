@@ -51,6 +51,7 @@ public class FrameworkButton implements GuiButton {
     private Set<GuiButtonFlag> flags;
 
     private ItemStack itemStack;
+    private boolean forcedItemStack;
 
     public FrameworkButton() {
         this.icon = new FrameworkIcon();
@@ -75,17 +76,20 @@ public class FrameworkButton implements GuiButton {
         this.flags = new HashSet<>();
 
         this.itemStack = null;
+        this.forcedItemStack = false;
     }
 
     public FrameworkButton(@NotNull ItemStack itemStack) {
         this();
         this.itemStack = itemStack;
+        this.forcedItemStack = true;
     }
 
     //region Normal Setters
 
     @Override
     public FrameworkButton setIcon(Material iconMaterial) {
+        this.checkForcedItemStack();
         this.icon = new FrameworkIcon(iconMaterial);
 
         return this;
@@ -93,6 +97,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setIcon(Material iconMaterial, Consumer<ItemMeta> itemMetaApplier) {
+        this.checkForcedItemStack();
         this.icon = new FrameworkIcon(iconMaterial, itemMetaApplier);
 
         return this;
@@ -100,6 +105,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setIcon(GuiIcon icon) {
+        this.checkForcedItemStack();
         this.icon = icon;
 
         return this;
@@ -107,6 +113,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setAmount(int amount) {
+        this.checkForcedItemStack();
         this.amount = amount;
 
         return this;
@@ -114,6 +121,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setName(GuiString name) {
+        this.checkForcedItemStack();
         this.name = name;
 
         return this;
@@ -121,6 +129,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setName(String name) {
+        this.checkForcedItemStack();
         this.name = new FrameworkString(name);
 
         return this;
@@ -128,6 +137,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setLore(GuiString... lore) {
+        this.checkForcedItemStack();
         this.lore = Arrays.asList(lore);
 
         return this;
@@ -135,6 +145,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setLore(String... lore) {
+        this.checkForcedItemStack();
         this.lore = Arrays.stream(lore).map(FrameworkString::new).collect(Collectors.toList());
 
         return this;
@@ -142,6 +153,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setLore(List<String> lore) {
+        this.checkForcedItemStack();
         this.lore = lore.stream().map(FrameworkString::new).collect(Collectors.toList());
 
         return this;
@@ -149,6 +161,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setGlowing(boolean glowing) {
+        this.checkForcedItemStack();
         this.glowing = glowing;
 
         return this;
@@ -202,6 +215,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setIconSupplier(Supplier<GuiIcon> iconSupplier) {
+        this.checkForcedItemStack();
         this.iconSupplier = iconSupplier;
 
         return this;
@@ -209,6 +223,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setAmountSupplier(Supplier<Integer> amountSupplier) {
+        this.checkForcedItemStack();
         this.amountSupplier = amountSupplier;
 
         return this;
@@ -216,6 +231,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setNameSupplier(Supplier<GuiString> nameSupplier) {
+        this.checkForcedItemStack();
         this.nameSupplier = nameSupplier;
 
         return this;
@@ -223,6 +239,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setLoreSupplier(Supplier<List<GuiString>> loreSupplier) {
+        this.checkForcedItemStack();
         this.loreSupplier = loreSupplier;
 
         return this;
@@ -230,6 +247,7 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setGlowingSupplier(Supplier<Boolean> glowingSupplier) {
+        this.checkForcedItemStack();
         this.glowingSupplier = glowingSupplier;
 
         return this;
@@ -321,18 +339,20 @@ public class FrameworkButton implements GuiButton {
         if (!isVisible)
             return this.hiddenReplacement;
 
-        FrameworkIcon icon = (FrameworkIcon) this.getIcon();
-        this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
+        if (!this.forcedItemStack) {
+            FrameworkIcon icon = (FrameworkIcon) this.getIcon();
+            this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
 
-        ItemMeta itemMeta = icon.getItemMeta().clone();
-        itemMeta.setDisplayName(this.getName().toString());
-        itemMeta.setLore(this.getLore().stream().map(GuiString::toString).collect(Collectors.toList()));
-        itemMeta.addItemFlags(ItemFlag.values());
+            ItemMeta itemMeta = icon.getItemMeta().clone();
+            itemMeta.setDisplayName(this.getName().toString());
+            itemMeta.setLore(this.getLore().stream().map(GuiString::toString).collect(Collectors.toList()));
+            itemMeta.addItemFlags(ItemFlag.values());
 
-        if (this.isGlowing())
-            itemMeta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+            if (this.isGlowing())
+                itemMeta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
 
-        this.itemStack.setItemMeta(itemMeta);
+            this.itemStack.setItemMeta(itemMeta);
+        }
 
         return this.itemStack;
     }
@@ -379,6 +399,11 @@ public class FrameworkButton implements GuiButton {
         this.icon.tick();
         this.name.tick();
         this.lore.forEach(GuiString::tick);
+    }
+
+    private void checkForcedItemStack() {
+        if (this.forcedItemStack)
+            throw new IllegalStateException("Cannot modify property of a forced ItemStack");
     }
 
 }

@@ -70,6 +70,11 @@ public final class GuiFactory {
     }
 
     @NotNull
+    public static GuiButton createButton(ItemStack itemStack) {
+        return new FrameworkButton(itemStack);
+    }
+
+    @NotNull
     public static GuiContainer createContainer() {
         return new FrameworkContainer();
     }

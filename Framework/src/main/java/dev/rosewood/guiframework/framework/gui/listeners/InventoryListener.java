@@ -46,7 +46,7 @@ public class InventoryListener implements Listener {
         this.validButtonInventoryActions = Arrays.asList(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryItemDrag(InventoryDragEvent event) {
         // Make sure drags are only a part of either the player's inventory or the editable section of the gui
         Inventory inventory = event.getView().getTopInventory();
@@ -116,14 +116,14 @@ public class InventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        Inventory inventory = event.getView().getTopInventory();
+        Inventory topInventory = event.getView().getTopInventory();
         Inventory bottomInventory = event.getView().getBottomInventory();
         Inventory clickedInventory = event.getClickedInventory();
         if (clickedInventory == null || !(event.getWhoClicked() instanceof Player))
             return;
 
-        FrameworkContainer clickedContainer = this.getGuiContainer(inventory);
-        FrameworkScreen clickedScreen = this.getGuiScreen(inventory);
+        FrameworkContainer clickedContainer = this.getGuiContainer(topInventory);
+        FrameworkScreen clickedScreen = this.getGuiScreen(topInventory);
         if (clickedContainer == null || clickedScreen == null)
             return;
 
@@ -148,7 +148,7 @@ public class InventoryListener implements Listener {
             int maxStackSize = movingItemStack.getMaxStackSize();
             int totalRemaining = movingItemStack.getAmount();
             for (int slot : editableSection.getSlots()) {
-                ItemStack slotItemStack = inventory.getItem(slot);
+                ItemStack slotItemStack = topInventory.getItem(slot);
                 if (slotItemStack == null || slotItemStack.getType() == Material.AIR) {
                     slotItemStack = new ItemStack(type, totalRemaining);
                     totalRemaining = 0;
@@ -157,7 +157,7 @@ public class InventoryListener implements Listener {
                     slotItemStack.setAmount(slotItemStack.getAmount() + amountToMove);
                     totalRemaining -= amountToMove;
                 } else continue;
-                inventory.setItem(slot, slotItemStack);
+                topInventory.setItem(slot, slotItemStack);
 
                 if (totalRemaining == 0)
                     break;
@@ -175,7 +175,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        if (clickedInventory != inventory)
+        if (clickedInventory != topInventory)
             return;
 
         if (editableSection != null && editableSection.containsSlot(event.getSlot())) {
@@ -217,8 +217,8 @@ public class InventoryListener implements Listener {
                 return;
         }
 
-        FrameworkButton clickedButton = clickedScreen.getButtonOnInventoryPage(inventory, event.getSlot());
-        if (clickedButton == null || !clickedScreen.isButtonOnInventoryPageVisible(inventory, event.getSlot()))
+        FrameworkButton clickedButton = clickedScreen.getButtonOnInventoryPage(topInventory, event.getSlot());
+        if (clickedButton == null || !clickedScreen.isButtonOnInventoryPageVisible(topInventory, event.getSlot()))
             return;
 
         Player player = (Player) event.getWhoClicked();

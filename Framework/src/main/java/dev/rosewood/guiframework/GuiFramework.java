@@ -63,7 +63,7 @@ public class GuiFramework {
      */
     @NotNull
     public static GuiFramework getInstance() {
-        Preconditions.checkNotNull(INSTANCE, "GuiFramework not yet instantiated. Must use GuiFramework.instantiate(Plugin) first.");
+        Preconditions.checkNotNull(INSTANCE, "GuiFramework not yet instantiated. Must use GuiFramework#instantiate(Plugin) first.");
 
         return INSTANCE;
     }
