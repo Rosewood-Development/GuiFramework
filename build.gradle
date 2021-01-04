@@ -59,10 +59,10 @@ publishing {
         }
     }
     repositories {
-        if (project.hasProperty('mavenUsername') && project.hasProperty('mavenPassword')) {
+        if (project.hasProperty('mavenUser') && project.hasProperty('mavenPassword')) {
             maven {
                 credentials {
-                    username project.mavenUsername
+                    username project.mavenUser
                     password project.mavenPassword
                 }
 

@@ -9,6 +9,7 @@ public interface GuiView {
 
     /**
      * @return the Player viewing
+     * @throws IllegalStateException if the player is no longer online
      */
     @NotNull
     Player getViewer();
