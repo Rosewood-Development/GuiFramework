@@ -1,0 +1,13 @@
+name: GuiFrameworkExamples
+version: '@version@'
+authors: [Esophose]
+main: dev.rosewood.guiframework.examples.GuiFrameworkExamples
+api-version: '1.13'
+commands:
+  guiframework:
+    description: The GuiFrameworkExamples command
+    permission: 'guiframeworkexamples.use'
+permissions:
+  guiframeworkexamples.use:
+    description: 'Allows using the /guiframework command'
+    default: op

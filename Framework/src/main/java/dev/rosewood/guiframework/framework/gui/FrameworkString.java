@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class FrameworkString implements GuiString {
 
-    private List<String> strings;
+    private final List<String> strings;
     private int currentIndex;
 
     public FrameworkString() {
@@ -27,8 +27,10 @@ public class FrameworkString implements GuiString {
      * @param text The text to add
      */
     @Override
-    public void addAnimationFrame(String text) {
+    public GuiString addAnimationFrame(String text) {
         this.strings.add(text);
+
+        return this;
     }
 
     @Override

@@ -185,6 +185,25 @@ public class FrameworkScreen implements GuiScreen {
     }
 
     @Override
+    public GuiSize getSize() {
+        return this.size;
+    }
+
+    @Override
+    public GuiSize getCurrentSize() {
+        GuiSize size = this.size;
+        if (size == GuiSize.DYNAMIC)
+            size = GuiUtil.getGuiSizeFromSlots(this.permanentSlots.keySet());
+        return size;
+    }
+
+    @Override
+    public void rebuild() {
+        this.inventories.clear();
+        this.updateInventories();
+    }
+
+    @Override
     public void tick() {
         this.permanentSlots.values().stream().filter(Slotable::isTickable).forEach(x -> ((Tickable) x).tick());
         this.paginatedSlotCache.values().forEach(x -> x.getPageContents().stream().filter(Slotable::isTickable).forEach(y -> ((Tickable) y).tick()));
@@ -441,11 +460,8 @@ public class FrameworkScreen implements GuiScreen {
 
     private Inventory createInventory(int pageNumber) {
         Inventory inventory;
-        switch (this.size) {
-            case DYNAMIC:
-                int slots = Math.min((((int) (this.permanentSlots.keySet().stream().max(Integer::compareTo).orElse(0) / 9.0)) + 1) * 9, GuiUtil.ROW_6_END + 1);
-                inventory = Bukkit.createInventory(null, slots, this.title);
-                break;
+
+        switch (this.getCurrentSize()) {
             case ROWS_ONE:
             case ROWS_TWO:
             case ROWS_THREE:

@@ -4,6 +4,6 @@ import org.jetbrains.annotations.NotNull;
 
 public interface GuiString extends Tickable {
 
-    void addAnimationFrame(@NotNull String text);
+    GuiString addAnimationFrame(@NotNull String text);
 
 }

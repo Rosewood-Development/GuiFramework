@@ -2,6 +2,7 @@ package dev.rosewood.guiframework.gui.screen;
 
 import dev.rosewood.guiframework.gui.GuiButton;
 import dev.rosewood.guiframework.gui.GuiContainer;
+import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.Tickable;
 import java.util.Collection;
 import java.util.List;
@@ -63,5 +64,19 @@ public interface GuiScreen extends Tickable {
 
     @Nullable
     GuiScreenEditFilters getEditFilters();
+
+    @NotNull
+    GuiSize getSize();
+
+    @NotNull
+    GuiSize getCurrentSize();
+
+    /**
+     * Destroys all inventories and rebuilds them from scratch.
+     * Opens the newly created inventories for existinv viewers.
+     * Capable of updating titles.
+     * Not recommended to call often.
+     */
+    void rebuild();
 
 }

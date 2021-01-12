@@ -37,18 +37,22 @@ public class FrameworkIcon implements GuiIcon {
     }
 
     @Override
-    public void addAnimationFrame(Material material) {
+    public GuiIcon addAnimationFrame(Material material) {
         this.materials.add(material);
         this.itemMetas.add(Bukkit.getItemFactory().getItemMeta(material));
+
+        return this;
     }
 
     @Override
-    public void addAnimationFrame(Material material, Consumer<ItemMeta> itemMetaApplier) {
+    public GuiIcon addAnimationFrame(Material material, Consumer<ItemMeta> itemMetaApplier) {
         this.materials.add(material);
 
         ItemMeta itemMeta = Bukkit.getItemFactory().getItemMeta(material);
         itemMetaApplier.accept(itemMeta);
         this.itemMetas.add(itemMeta);
+
+        return this;
     }
 
     @NotNull

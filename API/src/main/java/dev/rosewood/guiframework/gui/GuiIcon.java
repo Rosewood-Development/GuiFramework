@@ -12,7 +12,7 @@ public interface GuiIcon extends Tickable {
      *
      * @param material The Material for the frame
      */
-    void addAnimationFrame(@NotNull Material material);
+    GuiIcon addAnimationFrame(@NotNull Material material);
 
     /**
      * Adds an animation frame to the GuiIcon and allows you to edit the ItemMeta
@@ -20,6 +20,6 @@ public interface GuiIcon extends Tickable {
      * @param material The material for the frame
      * @param itemMetaApplier The Consumer to edit the ItemMeta for the frame
      */
-    void addAnimationFrame(@NotNull Material material, @NotNull Consumer<ItemMeta> itemMetaApplier);
+    GuiIcon addAnimationFrame(@NotNull Material material, @NotNull Consumer<ItemMeta> itemMetaApplier);
 
 }

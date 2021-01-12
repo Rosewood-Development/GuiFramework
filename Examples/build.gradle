@@ -1,0 +1,47 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+}
+
+group = 'dev.rosewood'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+
+    maven { url = 'https://repo.rosewooddev.io/repository/public/' }
+}
+
+dependencies {
+    // GuiFramework
+    implementation project(':Framework')
+    implementation project(':API')
+
+    // Spigot
+    compileOnly 'org.spigotmc:spigot:1.16.4'
+
+    // JetBrains Annotations
+    compileOnly 'org.jetbrains:annotations:13.0'
+}
+
+jar {
+    enabled = false
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+    archiveBaseName.set('GuiFrameworkExamples')
+}
+
+processResources {
+    from (sourceSets.main.resources.srcDirs) {
+        include 'plugin.yml'
+        filter ReplaceTokens, tokens: ["version": project.property("version")]
+    }
+}
+
+build.dependsOn shadowJar

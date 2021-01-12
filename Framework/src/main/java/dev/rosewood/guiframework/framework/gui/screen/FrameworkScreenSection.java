@@ -3,19 +3,21 @@ package dev.rosewood.guiframework.framework.gui.screen;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.guiframework.gui.screen.Slotable;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FrameworkScreenSection implements GuiScreenSection {
 
-    private List<Integer> slots;
+    private final Set<Integer> slots;
 
-    public FrameworkScreenSection(List<Integer> slots) {
-        this.slots = slots;
-        this.slots.sort(Integer::compareTo);
+    public FrameworkScreenSection(Collection<Integer> slots) {
+        this.slots = new TreeSet<>(slots);
     }
 
     public FrameworkScreenSection(int beginSlotIndex, int endSlotIndex) {
@@ -23,8 +25,22 @@ public class FrameworkScreenSection implements GuiScreenSection {
     }
 
     @Override
+    public GuiScreenSection addSlots(int... slots) {
+        this.slots.addAll(IntStream.of(slots).boxed().collect(Collectors.toList()));
+
+        return this;
+    }
+
+    @Override
+    public GuiScreenSection addSlotRange(int from, int to) {
+        this.slots.addAll(IntStream.rangeClosed(from, to).boxed().collect(Collectors.toList()));
+
+        return this;
+    }
+
+    @Override
     public List<Integer> getSlots() {
-        return Collections.unmodifiableList(this.slots);
+        return new ArrayList<>(this.slots);
     }
 
     @Override

@@ -1,10 +1,5 @@
-rootProject.name = 'guiframework'
+rootProject.name = 'GuiFramework'
 
-include(':API')
-project(':API').projectDir = file('API')
-
-include(':Framework')
-project(':Framework').projectDir = file('Framework')
 include 'Framework'
 include 'API'
-
+include 'Examples'

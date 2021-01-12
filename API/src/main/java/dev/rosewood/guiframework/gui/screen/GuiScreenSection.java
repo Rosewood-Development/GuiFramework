@@ -7,6 +7,25 @@ import org.jetbrains.annotations.NotNull;
 public interface GuiScreenSection {
 
     /**
+     * Adds slots to the screen section
+     *
+     * @param slots The slots to add
+     * @return this
+     */
+    @NotNull
+    GuiScreenSection addSlots(int... slots);
+
+    /**
+     * Adds a range of slots to the screen section
+     *
+     * @param from the start index, inclusive
+     * @param to the end index, inclusive
+     * @return this
+     */
+    @NotNull
+    GuiScreenSection addSlotRange(int from, int to);
+
+    /**
      * @return a list of ordered slot indices for this section
      */
     @NotNull
