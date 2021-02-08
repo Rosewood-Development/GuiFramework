@@ -112,8 +112,7 @@ public final class GuiFactory {
     }
 
     /**
-     * Creates a new GuiButton from an ItemStack. This GuiButton will throw an {@link IllegalStateException} if you try
-     * to modify any properties that represent how the ItemStack appears.
+     * Creates a new GuiButton from an existing ItemStack
      *
      * @param itemStack The ItemStack
      * @return a new GuiButton

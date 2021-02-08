@@ -3,6 +3,7 @@ package dev.rosewood.guiframework.framework.gui;
 import dev.rosewood.guiframework.gui.GuiIcon;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -55,13 +56,22 @@ public class FrameworkIcon implements GuiIcon {
         return this;
     }
 
+    @Override
+    public boolean isEmpty() {
+        return this.materials.isEmpty();
+    }
+
     @NotNull
     public Material getMaterial() {
+        if (this.materials.isEmpty())
+            return Material.BARRIER;
         return this.materials.get(this.currentIndex);
     }
 
     @NotNull
     public ItemMeta getItemMeta() {
+        if (this.itemMetas.isEmpty())
+            return Objects.requireNonNull(Bukkit.getItemFactory().getItemMeta(Material.BARRIER));
         return this.itemMetas.get(this.currentIndex);
     }
 

@@ -73,7 +73,7 @@ public interface GuiScreen extends Tickable {
 
     /**
      * Destroys all inventories and rebuilds them from scratch.
-     * Opens the newly created inventories for existinv viewers.
+     * Opens the newly created inventories for existing viewers.
      * Capable of updating titles.
      * Not recommended to call often.
      */

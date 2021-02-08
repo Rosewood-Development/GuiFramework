@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +63,9 @@ public interface GuiButton extends Tickable, Slotable {
     @NotNull
     GuiButton setHiddenReplacement(@Nullable ItemStack itemStack);
 
+    @NotNull
+    GuiButton setItemFlags(ItemFlag... itemFlags);
+
     //endregion
 
     //region Suppliers
@@ -89,6 +93,9 @@ public interface GuiButton extends Tickable, Slotable {
 
     @NotNull
     GuiButton setVisibilitySupplier(@NotNull Supplier<Boolean> visibilitySupplier);
+
+    @NotNull
+    GuiButton setItemFlagsSupplier(Supplier<List<ItemFlag>> itemFlagsSupplier);
 
     //endregion
 

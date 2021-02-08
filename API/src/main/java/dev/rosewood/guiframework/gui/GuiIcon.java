@@ -22,4 +22,9 @@ public interface GuiIcon extends Tickable {
      */
     GuiIcon addAnimationFrame(@NotNull Material material, @NotNull Consumer<ItemMeta> itemMetaApplier);
 
+    /**
+     * @return true if this GuiIcon has no animation frames, otherwise false
+     */
+    boolean isEmpty();
+
 }
