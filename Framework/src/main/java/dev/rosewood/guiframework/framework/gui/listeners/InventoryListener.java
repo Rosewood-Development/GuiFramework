@@ -137,7 +137,6 @@ public class InventoryListener implements Listener {
             }
 
             // Don't allow moving if it gets filtered
-            Material type = movingItemStack.getType();
             FrameworkScreenEditFilters editFilters = clickedScreen.getEditFilters();
             if (editFilters != null && !editFilters.canInteractWith(movingItemStack)) {
                 event.setCancelled(true);
@@ -150,9 +149,9 @@ public class InventoryListener implements Listener {
             for (int slot : editableSection.getSlots()) {
                 ItemStack slotItemStack = topInventory.getItem(slot);
                 if (slotItemStack == null || slotItemStack.getType() == Material.AIR) {
-                    slotItemStack = new ItemStack(type, totalRemaining);
+                    slotItemStack = movingItemStack;
                     totalRemaining = 0;
-                } else if (slotItemStack.getType() == type) {
+                } else if (slotItemStack.isSimilar(movingItemStack)) {
                     int amountToMove = Math.min(totalRemaining, maxStackSize - slotItemStack.getAmount());
                     slotItemStack.setAmount(slotItemStack.getAmount() + amountToMove);
                     totalRemaining -= amountToMove;

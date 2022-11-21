@@ -19,8 +19,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -48,6 +50,9 @@ public class FrameworkScreen implements GuiScreen {
     private Map<Integer, FrameworkPageContentsResult> paginatedSlotCache;
     private Map<Integer, Slotable> permanentSlots;
     private Map<Integer, Inventory> inventories;
+    private Runnable tickHandler;
+    private Map<Integer, Consumer<ItemStack>> slotListeners;
+    private Map<Integer, ItemStack> slotListenerPreviousContents;
 
     public FrameworkScreen(@NotNull FrameworkContainer parentContainer, @NotNull GuiSize size) {
         this.parentContainer = parentContainer;
@@ -62,6 +67,9 @@ public class FrameworkScreen implements GuiScreen {
         this.paginatedSlotCache = new HashMap<>();
         this.permanentSlots = new HashMap<>();
         this.inventories = new HashMap<>();
+        this.tickHandler = null;
+        this.slotListeners = new HashMap<>();
+        this.slotListenerPreviousContents = new HashMap<>();
     }
 
     @Override
@@ -150,6 +158,20 @@ public class FrameworkScreen implements GuiScreen {
     }
 
     @Override
+    public GuiScreen setTickHandler(Runnable handler) {
+        this.tickHandler = handler;
+
+        return this;
+    }
+
+    @Override
+    public GuiScreen addSlotListener(int slot, @NotNull Consumer<ItemStack> callback) {
+        this.slotListeners.put(slot, callback);
+
+        return this;
+    }
+
+    @Override
     public FrameworkContainer getParentContainer() {
         return this.parentContainer;
     }
@@ -205,8 +227,24 @@ public class FrameworkScreen implements GuiScreen {
 
     @Override
     public void tick() {
+        if (this.tickHandler != null)
+            this.tickHandler.run();
+
+        // Handle slot listeners
+        for (int slot : this.slotListeners.keySet()) {
+            ItemStack current = this.inventories.get(1).getItem(slot);
+            ItemStack previous = this.slotListenerPreviousContents.get(slot);
+            if (!Objects.equals(current, previous)) {
+                Consumer<ItemStack> callback = this.slotListeners.get(slot);
+                if (callback != null)
+                    callback.accept(current);
+
+                this.slotListenerPreviousContents.put(slot, current != null ? current.clone() : null);
+            }
+        }
+
         this.permanentSlots.values().stream().filter(Slotable::isTickable).forEach(x -> ((Tickable) x).tick());
-        this.paginatedSlotCache.values().forEach(x -> x.getPageContents().stream().filter(Slotable::isTickable).forEach(y -> ((Tickable) y).tick()));
+        this.paginatedSlotCache.values().forEach(x -> x.getPageContents().stream().filter(Objects::nonNull).filter(Slotable::isTickable).forEach(y -> ((Tickable) y).tick()));
         this.updateInventories();
     }
 
@@ -222,11 +260,8 @@ public class FrameworkScreen implements GuiScreen {
                     this.populateInventory(i, inventory);
                 }
 
-                for (int slot : this.editableSection.getSlots()) {
-                    ItemStack itemStack = inventory.getItem(slot);
-                    if (itemStack != null && itemStack.getType() != Material.AIR)
-                        items.add(itemStack);
-                }
+                for (int slot : this.editableSection.getSlots())
+                    items.add(inventory.getItem(slot));
             }
 
             this.editFinalizationCallback.accept(lastViewer, items);
@@ -411,7 +446,7 @@ public class FrameworkScreen implements GuiScreen {
                 slots = this.editableSection.getSlots();
             }
 
-            if (slots != null && pageContents != null) {
+            if (slots != null) {
                 for (int i = 0; i < slots.size() && i < pageContents.size(); i++) {
                     int slot = slots.get(i);
                     Slotable slotable = pageContents.get(i);

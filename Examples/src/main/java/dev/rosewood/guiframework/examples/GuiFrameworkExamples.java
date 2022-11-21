@@ -2,8 +2,10 @@ package dev.rosewood.guiframework.examples;
 
 import dev.rosewood.guiframework.GuiFramework;
 import dev.rosewood.guiframework.examples.command.AnimatedExample;
+import dev.rosewood.guiframework.examples.command.EditableExample;
 import dev.rosewood.guiframework.examples.command.HelpCommand;
 import dev.rosewood.guiframework.examples.command.PaginatedExample;
+import dev.rosewood.guiframework.examples.command.RotationExample;
 import dev.rosewood.guiframework.examples.command.SubCommand;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +32,9 @@ public class GuiFrameworkExamples extends JavaPlugin {
         this.subCommands = Arrays.asList(
                 new HelpCommand(this, this.guiFramework),
                 new AnimatedExample(this, this.guiFramework),
-                new PaginatedExample(this, this.guiFramework)
+                new PaginatedExample(this, this.guiFramework),
+                new RotationExample(this, this.guiFramework),
+                new EditableExample(this, this.guiFramework)
         );
 
         PluginCommand command = this.getCommand("guiframework");

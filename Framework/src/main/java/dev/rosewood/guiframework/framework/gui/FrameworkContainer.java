@@ -132,7 +132,7 @@ public class FrameworkContainer implements GuiContainer {
             return;
 
         FrameworkView view = this.currentViewers.get(player.getUniqueId());
-        if (view.getViewingPage() == 1)
+        if (view.getViewingPage() == view.getViewingScreen().getMaximumPageNumber())
             return;
 
         view.setViewingPage(view.getViewingScreen().getMaximumPageNumber());

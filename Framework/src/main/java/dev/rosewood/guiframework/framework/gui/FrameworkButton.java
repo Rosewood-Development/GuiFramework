@@ -348,18 +348,19 @@ public class FrameworkButton implements GuiButton {
 
         ItemStack itemStack = this.itemStack;
         FrameworkIcon icon = (FrameworkIcon) this.getIcon();
-        if (!this.forcedItemStack) {
-            if (this.itemStack == null)
-                this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
-        } else {
-            itemStack = itemStack.clone();
-            if (!icon.isEmpty())
-                this.itemStack.setType(icon.getMaterial());
 
-            int amount = this.getAmount();
-            if (this.itemStack.getAmount() == 1 && amount != 1)
-                this.itemStack.setAmount(this.getAmount());
-        }
+        if (this.forcedItemStack)
+            itemStack = itemStack.clone();
+
+        if (this.itemStack == null)
+            this.itemStack = new ItemStack(icon.getMaterial(), this.getAmount());
+
+        if (!icon.isEmpty())
+            this.itemStack.setType(icon.getMaterial());
+
+        int amount = this.getAmount();
+        if (this.itemStack.getAmount() == 1 && amount != 1)
+            this.itemStack.setAmount(this.getAmount());
 
         ItemMeta itemMeta;
         if (!icon.isEmpty()) {

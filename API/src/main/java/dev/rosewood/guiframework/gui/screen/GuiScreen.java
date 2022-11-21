@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,27 @@ public interface GuiScreen extends Tickable {
 
     @NotNull
     GuiScreen addButton(@NotNull GuiButton button);
+
+    /**
+     * Executes a Runnable every time this screen ticks.
+     * Calls before updating the contents and buttons.
+     *
+     * @param handler The Runnable
+     * @return this
+     */
+    @NotNull
+    GuiScreen setTickHandler(@NotNull Runnable handler);
+
+    /**
+     * Adds a slot listener which will be called whenever the slot contents changes.
+     * The slot listener will be called based on the GuiScreen's tick rate.
+     *
+     * @param slot The slot to listen to
+     * @param callback The callback to run when the slot changes
+     * @return this
+     */
+    @NotNull
+    GuiScreen addSlotListener(int slot, @NotNull Consumer<ItemStack> callback);
 
     @NotNull
     GuiContainer getParentContainer();
