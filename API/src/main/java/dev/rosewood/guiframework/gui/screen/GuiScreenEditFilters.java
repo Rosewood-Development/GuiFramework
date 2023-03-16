@@ -1,9 +1,11 @@
 package dev.rosewood.guiframework.gui.screen;
 
-import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
+import java.util.function.Predicate;
 
 public interface GuiScreenEditFilters {
 
@@ -11,7 +13,13 @@ public interface GuiScreenEditFilters {
     GuiScreenEditFilters setWhitelist(@NotNull Material... whitelist);
 
     @NotNull
+    GuiScreenEditFilters setWhitelist(@NotNull Predicate<ItemStack> whitelist);
+
+    @NotNull
     GuiScreenEditFilters setBlacklist(@NotNull Material... blacklist);
+
+    @NotNull
+    GuiScreenEditFilters setBlacklist(@NotNull Predicate<ItemStack> blacklist);
 
     /**
      * Should modified items (those with lore, display name, glow, etc) be allowed?
@@ -21,10 +29,10 @@ public interface GuiScreenEditFilters {
     GuiScreenEditFilters setAllowModified(boolean allowModified);
 
     @NotNull
-    Set<Material> getWhitelist();
+    Predicate<ItemStack> getWhitelist();
 
     @NotNull
-    Set<Material> getBlacklist();
+    Predicate<ItemStack> getBlacklist();
 
     boolean canInteractWith(ItemStack itemStack);
 

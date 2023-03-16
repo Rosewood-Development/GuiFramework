@@ -1,38 +1,53 @@
 package dev.rosewood.guiframework.framework.gui.screen;
 
 import dev.rosewood.guiframework.gui.screen.GuiScreenEditFilters;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
 
-    private EnumSet<Material> whitelist;
-    private EnumSet<Material> blacklist;
+    private Predicate<ItemStack> whitelist;
+    private Predicate<ItemStack> blacklist;
     private boolean allowModified;
 
     public FrameworkScreenEditFilters() {
-        this.whitelist = EnumSet.noneOf(Material.class);
-        this.blacklist = EnumSet.noneOf(Material.class);
+        this.whitelist = null;
+        this.blacklist = null;
         this.allowModified = true;
     }
 
+    @NotNull
     @Override
-    public FrameworkScreenEditFilters setWhitelist(Material... whitelist) {
-        this.whitelist.clear();
-        this.whitelist.addAll(Arrays.asList(whitelist));
-
+    public FrameworkScreenEditFilters setWhitelist(@NotNull Material... whitelist) {
+        this.whitelist = stack -> Arrays.stream(whitelist).allMatch(stack.getType()::equals);
         return this;
     }
 
+    @NotNull
     @Override
-    public FrameworkScreenEditFilters setBlacklist(Material... blacklist) {
-        this.blacklist.clear();
-        this.blacklist.addAll(Arrays.asList(blacklist));
+    public GuiScreenEditFilters setWhitelist(@NotNull Predicate<ItemStack> whitelist) {
+        this.whitelist = whitelist;
+        return this;
+    }
 
+    @NotNull
+    @Override
+    public FrameworkScreenEditFilters setBlacklist(@NotNull Material... blacklist) {
+        this.blacklist = stack -> Arrays.stream(blacklist).noneMatch(stack.getType()::equals);
+        return this;
+    }
+
+    @NotNull
+    @Override
+    public GuiScreenEditFilters setBlacklist(@NotNull Predicate<ItemStack> blacklist) {
+        this.blacklist = blacklist;
         return this;
     }
 
@@ -43,16 +58,18 @@ public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
         return this;
     }
 
+    @NotNull
     @Override
-    public Set<Material> getWhitelist() {
-        return this.whitelist;
+    public Predicate<ItemStack> getWhitelist() {
+        return whitelist;
     }
 
+    @NotNull
     @Override
-    public Set<Material> getBlacklist() {
-        return this.blacklist;
+    public Predicate<ItemStack> getBlacklist() {
+        return blacklist;
     }
-
+    
     @Override
     public boolean canInteractWith(ItemStack itemStack) {
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -61,10 +78,10 @@ public class FrameworkScreenEditFilters implements GuiScreenEditFilters {
                 return false;
         }
 
-        if (this.blacklist.contains(itemStack.getType()))
+        if (this.blacklist != null && this.blacklist.test(itemStack))
             return false;
 
-        return this.whitelist.isEmpty() || this.whitelist.contains(itemStack.getType());
+        return this.whitelist == null || this.whitelist.test(itemStack);
     }
 
 }
