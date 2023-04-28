@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -149,7 +151,8 @@ public class InventoryListener implements Listener {
             for (int slot : editableSection.getSlots()) {
                 ItemStack slotItemStack = topInventory.getItem(slot);
                 if (slotItemStack == null || slotItemStack.getType() == Material.AIR) {
-                    slotItemStack = movingItemStack;
+                    slotItemStack = movingItemStack.clone();
+                    slotItemStack.setAmount(totalRemaining);
                     totalRemaining = 0;
                 } else if (slotItemStack.isSimilar(movingItemStack)) {
                     int amountToMove = Math.min(totalRemaining, maxStackSize - slotItemStack.getAmount());
@@ -260,10 +263,34 @@ public class InventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if (event.getPlayer().getOpenInventory().getType() == InventoryType.CRAFTING)
-            return;
+        this.forceCloseActiveGuis(event.getPlayer());
+    }
 
-        this.runClose(event.getPlayer(), event.getPlayer().getOpenInventory().getTopInventory());
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        this.forceCloseActiveGuis(event.getPlayer());
+    }
+
+    /**
+     * Remove the player from any containers they may be viewing
+     *
+     * @param player The player to remove
+     */
+    private void forceCloseActiveGuis(Player player) {
+        List<FrameworkContainer> orphanedContainers = this.guiManager.getActiveGuis().stream()
+                .filter(x -> x instanceof FrameworkContainer)
+                .map(x -> (FrameworkContainer) x)
+                .filter(x -> x.getCurrentViewers().containsKey(player.getUniqueId()))
+                .collect(Collectors.toList());
+
+        for (FrameworkContainer container : orphanedContainers) {
+            container.runCloseFor(player);
+            if (!container.isPersistent() && !container.hasViewers())
+                this.guiManager.unregisterGui(container);
+        }
+
+        if (!orphanedContainers.isEmpty())
+            player.closeInventory();
     }
 
     /**

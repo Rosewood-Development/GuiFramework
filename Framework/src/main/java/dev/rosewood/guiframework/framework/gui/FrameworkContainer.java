@@ -1,5 +1,6 @@
 package dev.rosewood.guiframework.framework.gui;
 
+import dev.rosewood.guiframework.GuiFramework;
 import dev.rosewood.guiframework.framework.gui.screen.FrameworkScreen;
 import dev.rosewood.guiframework.gui.GuiContainer;
 import dev.rosewood.guiframework.gui.GuiView;
@@ -7,8 +8,10 @@ import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,6 +68,14 @@ public class FrameworkContainer implements GuiContainer {
         if (screen == null)
             throw new IndexOutOfBoundsException("A screen with the id " + screenNumber + " does not exist.");
 
+        // Remove the player from any other containers they may already be viewing
+        GuiFramework.getInstance().getGuiManager().getActiveGuis().stream()
+                .filter(x -> x instanceof FrameworkContainer)
+                .map(x -> (FrameworkContainer) x)
+                .filter(x -> x != this)
+                .filter(x -> x.getCurrentViewers().containsKey(player.getUniqueId()))
+                .forEach(x -> x.runCloseFor(player));
+
         this.currentViewers.put(player.getUniqueId(), new FrameworkView(player.getUniqueId(), screen, 1));
         player.openInventory(screen.getInventory(1));
     }
@@ -86,8 +97,7 @@ public class FrameworkContainer implements GuiContainer {
      * @param player The player to close the Gui for
      */
     public void runCloseFor(@NotNull Player player) {
-        this.currentViewers.remove(player.getUniqueId());
-        if (this.currentViewers.isEmpty())
+        if (this.currentViewers.remove(player.getUniqueId()) != null && this.currentViewers.isEmpty())
             this.screens.values().stream().map(x -> (FrameworkScreen) x).forEach(x -> x.onViewersLeave(player));
     }
 
@@ -243,7 +253,11 @@ public class FrameworkContainer implements GuiContainer {
      * Closes the open inventory of all viewers
      */
     public void closeViewers() {
-        this.currentViewers.values().stream().map(FrameworkView::getViewer).forEach(Player::closeInventory);
+        List<Player> viewers = this.currentViewers.values().stream().map(GuiView::getViewer).collect(Collectors.toList());
+        viewers.forEach(viewer -> {
+            viewer.closeInventory();
+            this.runCloseFor(viewer);
+        });
     }
 
 }
