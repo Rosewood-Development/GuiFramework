@@ -3,9 +3,11 @@ package dev.rosewood.guiframework.framework.util;
 import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -147,6 +149,18 @@ public final class GuiUtil {
      */
     public static int slotFromCoordinate(int row, int col) {
         return row * 9 + col;
+    }
+
+    /**
+     * Formats a string from THIS_FORMAT to This Format
+     *
+     * @param name The name to format
+     * @return the reformatted string
+     */
+    public static String formatName(String name) {
+        return Arrays.stream(name.replace('_', ' ').split("\\s+"))
+                .map(x -> x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
     }
 
 }

@@ -1,5 +1,8 @@
 rootProject.name = 'GuiFramework'
 
-include 'Framework'
-include 'API'
-include 'Examples'
+include('Framework')
+include('API')
+include('Examples')
+include('InventoryView:Wrapper')
+include('InventoryView:Old')
+include('InventoryView:New')

@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import net.md_5.bungee.api.ChatColor;
-import org.apache.commons.lang.WordUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -88,7 +87,7 @@ public class PaginatedExample extends SubCommand {
                 Material material = materials.get(i);
                 results.addPageContent(GuiFactory.createButton()
                         .setIcon(material)
-                        .setName(ChatColor.AQUA + WordUtils.capitalizeFully(material.name().replace('_', ' '))));
+                        .setName(ChatColor.AQUA + GuiUtil.formatName(material.name().replace('_', ' '))));
             }
 
             return results;

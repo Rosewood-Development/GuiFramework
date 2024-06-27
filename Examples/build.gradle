@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'dev.rosewood'
@@ -11,9 +11,13 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    jcenter()
 
     maven { url = 'https://repo.rosewooddev.io/repository/public/' }
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    disableAutoTargetJvm()
 }
 
 dependencies {
@@ -22,10 +26,7 @@ dependencies {
     implementation project(':API')
 
     // Spigot
-    compileOnly 'org.spigotmc:spigot:1.16.4'
-
-    // JetBrains Annotations
-    compileOnly 'org.jetbrains:annotations:13.0'
+    compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
 }
 
 jar {
@@ -41,6 +42,7 @@ processResources {
     from (sourceSets.main.resources.srcDirs) {
         include 'plugin.yml'
         filter ReplaceTokens, tokens: ["version": project.property("version")]
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
 

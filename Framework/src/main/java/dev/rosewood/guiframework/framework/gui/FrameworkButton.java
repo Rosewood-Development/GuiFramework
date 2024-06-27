@@ -1,5 +1,6 @@
 package dev.rosewood.guiframework.framework.gui;
 
+import dev.rosewood.guiframework.framework.util.VersionUtils;
 import dev.rosewood.guiframework.gui.ClickAction;
 import dev.rosewood.guiframework.gui.ClickActionType;
 import dev.rosewood.guiframework.gui.GuiButton;
@@ -377,7 +378,7 @@ public class FrameworkButton implements GuiButton {
                 itemMeta.addItemFlags(this.getItemFlags());
 
             if (this.isGlowing())
-                itemMeta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+                itemMeta.addEnchant(VersionUtils.INFINITY, 1, true);
 
             this.itemStack.setItemMeta(itemMeta);
         }

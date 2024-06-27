@@ -1,5 +1,3 @@
 dependencies {
-    compileOnly project(':API')
-    compileOnly project(':InventoryView:Wrapper')
     compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
 }

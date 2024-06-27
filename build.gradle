@@ -1,46 +1,39 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
     id 'maven-publish'
+    id 'java'
 }
 
 allprojects {
-    apply plugin: 'java'
-
+    apply plugin: 'java-library'
+    apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
+    java {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        disableAutoTargetJvm()
+    }
+
     repositories {
         mavenCentral()
-        jcenter()
 
         maven { url = 'https://repo.rosewooddev.io/repository/public' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     }
 
     dependencies {
-        // Spigot
-        compileOnly 'org.spigotmc:spigot:1.17.1'
-
-        // JetBrains Annotations
-        compileOnly 'org.jetbrains:annotations:13.0'
+        compileOnly 'org.jetbrains:annotations:24.1.0'
     }
-}
-
-configurations {
-    childJars
 }
 
 dependencies {
-    childJars project(':API')
-    childJars project(':Framework')
-}
-
-jar {
-    dependsOn configurations.childJars
-    from {
-        configurations.childJars.collect {
-            zipTree(it)
-        }
-    }
+    implementation project(':Framework')
+    implementation project(':API')
+    implementation project(':InventoryView:Wrapper')
+    implementation project(':InventoryView:New')
+    implementation project(':InventoryView:Old')
 }
 
 publishing {
