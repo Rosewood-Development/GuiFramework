@@ -1,6 +1,9 @@
 package dev.rosewood.guiframework.framework.gui.listeners;
 
 import dev.rosewood.guiframework.GuiFramework;
+import dev.rosewood.guiframework.adapter.InventoryViewAdapter;
+import dev.rosewood.guiframework.adapter.InventoryViewHandler;
+import dev.rosewood.guiframework.adapter.InventoryViewWrapper;
 import dev.rosewood.guiframework.framework.gui.FrameworkButton;
 import dev.rosewood.guiframework.framework.gui.FrameworkContainer;
 import dev.rosewood.guiframework.framework.gui.manager.FrameworkManager;
@@ -31,7 +34,6 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryListener implements Listener {
@@ -51,7 +53,7 @@ public class InventoryListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryItemDrag(InventoryDragEvent event) {
         // Make sure drags are only a part of either the player's inventory or the editable section of the gui
-        Inventory inventory = event.getView().getTopInventory();
+        Inventory inventory = InventoryViewAdapter.getHandler().getView(event).getTopInventory();
         FrameworkContainer clickedContainer = this.getGuiContainer(inventory);
         FrameworkScreen clickedScreen = this.getGuiScreen(inventory);
         if (clickedContainer == null || clickedScreen == null || !(event.getWhoClicked() instanceof Player))
@@ -66,7 +68,7 @@ public class InventoryListener implements Listener {
                 event.setCancelled(true);
 
             // Check if we dragged into non-editable slots
-            InventoryView view = event.getView();
+            InventoryViewWrapper view = InventoryViewAdapter.getHandler().getView(event);
             Map<Integer, ItemStack> newItems = event.getNewItems();
             Map<Integer, ItemStack> rejectedItems = new HashMap<>();
             for (int slot : newItems.keySet()) {
@@ -110,7 +112,8 @@ public class InventoryListener implements Listener {
                 });
             }
         } else {
-            boolean draggedIntoTop = event.getInventorySlots().stream().anyMatch(x -> event.getView().getSlotType(x) == SlotType.CONTAINER);
+            InventoryViewHandler handler = InventoryViewAdapter.getHandler();
+            boolean draggedIntoTop = event.getInventorySlots().stream().anyMatch(x -> handler.getView(event).getSlotType(x) == SlotType.CONTAINER);
             if (draggedIntoTop)
                 event.setCancelled(true);
         }
@@ -118,8 +121,9 @@ public class InventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        Inventory topInventory = event.getView().getTopInventory();
-        Inventory bottomInventory = event.getView().getBottomInventory();
+        InventoryViewWrapper view = InventoryViewAdapter.getHandler().getView(event);
+        Inventory topInventory = view.getTopInventory();
+        Inventory bottomInventory = view.getBottomInventory();
         Inventory clickedInventory = event.getClickedInventory();
         if (clickedInventory == null || !(event.getWhoClicked() instanceof Player))
             return;
@@ -301,7 +305,7 @@ public class InventoryListener implements Listener {
      */
     private void runClose(Player player, Inventory inventory) {
         FrameworkContainer eventContainer = this.getGuiContainer(inventory);
-        FrameworkContainer playerContainer = this.getGuiContainer(player.getOpenInventory().getTopInventory());
+        FrameworkContainer playerContainer = this.getGuiContainer(InventoryViewAdapter.getHandler().getOpenInventory(player).getTopInventory());
         if (eventContainer == null || playerContainer != null)
             return;
 

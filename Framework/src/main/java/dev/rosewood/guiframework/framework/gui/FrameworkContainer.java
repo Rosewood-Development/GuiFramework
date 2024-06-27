@@ -1,6 +1,7 @@
 package dev.rosewood.guiframework.framework.gui;
 
 import dev.rosewood.guiframework.GuiFramework;
+import dev.rosewood.guiframework.adapter.InventoryViewAdapter;
 import dev.rosewood.guiframework.framework.gui.screen.FrameworkScreen;
 import dev.rosewood.guiframework.gui.GuiContainer;
 import dev.rosewood.guiframework.gui.GuiView;
@@ -77,7 +78,7 @@ public class FrameworkContainer implements GuiContainer {
                 .forEach(x -> x.runCloseFor(player));
 
         this.currentViewers.put(player.getUniqueId(), new FrameworkView(player.getUniqueId(), screen, 1));
-        player.openInventory(screen.getInventory(1));
+        InventoryViewAdapter.getHandler().openInventory(player, screen.getInventory(1));
     }
 
     /**
@@ -110,7 +111,7 @@ public class FrameworkContainer implements GuiContainer {
             return;
 
         view.setViewingPage(1);
-        player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+        InventoryViewAdapter.getHandler().openInventory(player, view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 
     public void pageBackwards(@NotNull Player player) {
@@ -122,7 +123,7 @@ public class FrameworkContainer implements GuiContainer {
             return;
 
         view.setViewingPage(view.getViewingPage() - 1);
-        player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+        InventoryViewAdapter.getHandler().openInventory(player, view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 
     public void pageForwards(@NotNull Player player) {
@@ -134,7 +135,7 @@ public class FrameworkContainer implements GuiContainer {
             return;
 
         view.setViewingPage(view.getViewingPage() + 1);
-        player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+        InventoryViewAdapter.getHandler().openInventory(player, view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 
     public void lastPage(@NotNull Player player) {
@@ -146,7 +147,7 @@ public class FrameworkContainer implements GuiContainer {
             return;
 
         view.setViewingPage(view.getViewingScreen().getMaximumPageNumber());
-        player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+        InventoryViewAdapter.getHandler().openInventory(player, view.getViewingScreen().getInventory(view.getViewingPage()));
     }
 
     public void transitionForwards(@NotNull Player player) {
@@ -158,7 +159,7 @@ public class FrameworkContainer implements GuiContainer {
                 if (nextScreen != null) {
                     view.setViewingScreen(nextScreen);
                     view.setViewingPage(1);
-                    player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+                    InventoryViewAdapter.getHandler().openInventory(player, view.getViewingScreen().getInventory(view.getViewingPage()));
                 }
                 return;
             }
@@ -174,7 +175,7 @@ public class FrameworkContainer implements GuiContainer {
                 if (nextScreen != null) {
                     view.setViewingScreen(nextScreen);
                     view.setViewingPage(1);
-                    player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+                    InventoryViewAdapter.getHandler().openInventory(player, view.getViewingScreen().getInventory(view.getViewingPage()));
                 }
                 return;
             }

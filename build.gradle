@@ -36,11 +36,15 @@ dependencies {
     implementation project(':InventoryView:Old')
 }
 
+shadowJar {
+    archiveClassifier.set(null)
+}
+
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
             artifactId = 'guiframework'
-            from components.java
             pom {
                 name = 'guiframework'
             }
@@ -61,3 +65,6 @@ publishing {
         }
     }
 }
+
+build.dependsOn shadowJar
+publishShadowPublicationToMavenRepository.dependsOn jar

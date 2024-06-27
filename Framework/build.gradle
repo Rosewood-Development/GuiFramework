@@ -1,5 +1,23 @@
+//configurations {
+//    spigot
+//}
+
 dependencies {
     compileOnly project(':API')
     compileOnly project(':InventoryView:Wrapper')
     compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
+//  spigot "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
 }
+
+//tasks.register('unpackSpigot', Copy) {
+//    from(configurations.spigot.collect { zipTree(it) }) {
+//        exclude 'org/bukkit/inventory/InventoryView.class'
+//    }
+//    into "${layout.buildDirectory.get()}/spigot"
+//    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+//}
+//
+//compileJava {
+//    dependsOn unpackSpigot
+//    classpath += files("${layout.buildDirectory.get()}/spigot")
+//}
