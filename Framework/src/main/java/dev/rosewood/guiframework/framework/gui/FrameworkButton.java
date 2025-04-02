@@ -7,12 +7,13 @@ import dev.rosewood.guiframework.gui.GuiButton;
 import dev.rosewood.guiframework.gui.GuiButtonFlag;
 import dev.rosewood.guiframework.gui.GuiIcon;
 import dev.rosewood.guiframework.gui.GuiString;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,7 +21,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
@@ -31,24 +31,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class FrameworkButton implements GuiButton {
 
-    private GuiIcon icon;
-    private int amount;
-    private GuiString name;
-    private List<GuiString> lore;
-    private boolean glowing;
-    private Sound clickSound;
-    private float clickVolume, clickPitch;
-    private ItemStack hiddenReplacement;
-    private ItemFlag[] itemFlags;
-
-    private Supplier<GuiIcon> iconSupplier;
-    private Supplier<Integer> amountSupplier;
-    private Supplier<GuiString> nameSupplier;
-    private Supplier<List<GuiString>> loreSupplier;
-    private Supplier<Boolean> glowingSupplier;
-    private Supplier<Sound> clickSoundSupplier;
-    private Supplier<Boolean> visibilitySupplier;
-    private Supplier<List<ItemFlag>> itemFlagsSupplier;
+    private Supplier<GuiIcon> icon;
+    private Supplier<Integer> amount;
+    private Supplier<GuiString> name;
+    private Supplier<List<GuiString>> lore;
+    private Supplier<Boolean> glowing;
+    private Supplier<Sound> clickSound;
+    private Supplier<Float> clickVolume;
+    private Supplier<Float> clickPitch;
+    private Supplier<Boolean> visibility;
+    private Supplier<ItemStack> hiddenReplacement;
+    private Supplier<List<ItemFlag>> itemFlags;
 
     private Map<ClickActionType, Function<InventoryClickEvent, ClickAction>> clickActions;
     private Set<GuiButtonFlag> flags;
@@ -57,25 +50,20 @@ public class FrameworkButton implements GuiButton {
     private boolean forcedItemStack;
 
     public FrameworkButton() {
-        this.icon = new FrameworkIcon();
-        this.amount = 1;
-        this.name = new FrameworkString();
-        this.lore = new ArrayList<>();
-        this.glowing = false;
-        this.clickSound = null;
-        this.clickVolume = 0.5F;
-        this.clickPitch = 1.0F;
-        this.hiddenReplacement = null;
-        this.itemFlags = ItemFlag.values();
+        FrameworkIcon frameworkIcon = new FrameworkIcon();
+        FrameworkString frameworkString = new FrameworkString();
 
-        this.iconSupplier = null;
-        this.amountSupplier = null;
-        this.nameSupplier = null;
-        this.loreSupplier = null;
-        this.glowingSupplier = null;
-        this.clickSoundSupplier = null;
-        this.visibilitySupplier = null;
-        this.itemFlagsSupplier = null;
+        this.icon = () -> frameworkIcon;
+        this.amount = () -> 1;
+        this.name = () -> frameworkString;
+        this.lore = Collections::emptyList;
+        this.glowing = () -> false;
+        this.clickSound = () -> null;
+        this.clickVolume = () -> 0.5F;
+        this.clickPitch = () -> 1.0F;
+        this.visibility = null;
+        this.hiddenReplacement = null;
+        this.itemFlags = Collections::emptyList;
 
         this.clickActions = new HashMap<>();
         this.flags = new HashSet<>();
@@ -94,86 +82,106 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setIcon(Material iconMaterial) {
-        this.icon = new FrameworkIcon(iconMaterial);
+        FrameworkIcon icon = new FrameworkIcon(iconMaterial);
+        this.icon = () -> icon;
 
         return this;
     }
 
     @Override
     public FrameworkButton setIcon(Material iconMaterial, Consumer<ItemMeta> itemMetaApplier) {
-        this.icon = new FrameworkIcon(iconMaterial, itemMetaApplier);
+        FrameworkIcon icon = new FrameworkIcon(iconMaterial, itemMetaApplier);
+        this.icon = () -> icon;
 
         return this;
     }
 
     @Override
     public FrameworkButton setIcon(GuiIcon icon) {
-        this.icon = icon;
+        this.icon = () -> icon;
 
         return this;
     }
 
     @Override
     public FrameworkButton setAmount(int amount) {
-        this.amount = amount;
+        this.amount = () -> amount;
 
         return this;
     }
 
     @Override
     public FrameworkButton setName(GuiString name) {
-        this.name = name;
+        this.name = () -> name;
 
         return this;
     }
 
     @Override
     public FrameworkButton setName(String name) {
-        this.name = new FrameworkString(name);
+        FrameworkString string = new FrameworkString(name);
+        this.name = () -> string;
 
         return this;
     }
 
     @Override
     public FrameworkButton setLore(GuiString... lore) {
-        this.lore = Arrays.asList(lore);
+        List<GuiString> list = Arrays.asList(lore);
+        this.lore = () -> list;
 
         return this;
     }
 
     @Override
     public FrameworkButton setLore(String... lore) {
-        this.lore = Arrays.stream(lore).map(FrameworkString::new).collect(Collectors.toList());
+        List<GuiString> list = Arrays.stream(lore).map(FrameworkString::new).collect(Collectors.toList());
+        this.lore = () -> list;
 
         return this;
     }
 
     @Override
     public FrameworkButton setLore(List<String> lore) {
-        this.lore = lore.stream().map(FrameworkString::new).collect(Collectors.toList());
+        List<GuiString> list = lore.stream().map(FrameworkString::new).collect(Collectors.toList());
+        this.lore = () -> list;
 
         return this;
     }
 
     @Override
     public FrameworkButton setGlowing(boolean glowing) {
-        this.glowing = glowing;
+        this.glowing = () -> glowing;
 
         return this;
     }
 
     @Override
     public FrameworkButton setClickSound(Sound sound) {
-        this.clickSound = sound;
+        this.clickSound = () -> sound;
 
         return this;
     }
 
     @Override
     public FrameworkButton setClickSound(Sound sound, float volume, float pitch) {
-        this.clickSound = sound;
-        this.clickVolume = volume;
-        this.clickPitch = pitch;
+        this.clickSound = () -> sound;
+        this.clickVolume = () -> volume;
+        this.clickPitch = () -> pitch;
+
+        return this;
+    }
+
+    @Override
+    public FrameworkButton setClickVolume(float volume) {
+        this.clickVolume = () -> volume;
+
+        return this;
+    }
+
+    @Override
+    public FrameworkButton setClickPitch(float pitch) {
+        this.clickPitch = () -> pitch;
 
         return this;
     }
@@ -198,15 +206,32 @@ public class FrameworkButton implements GuiButton {
     }
 
     @Override
+    public FrameworkButton setVisibility(Boolean visibility) {
+        if (visibility == null) {
+            this.visibility = null;
+        } else {
+            this.visibility = () -> visibility;
+        }
+
+        return this;
+    }
+
+    @Override
     public FrameworkButton setHiddenReplacement(ItemStack itemStack) {
-        this.hiddenReplacement = itemStack;
+        if (itemStack == null) {
+            this.hiddenReplacement = null;
+        } else {
+            ItemStack clone = itemStack.clone();
+            this.hiddenReplacement = () -> clone;
+        }
 
         return this;
     }
 
     @Override
     public FrameworkButton setItemFlags(ItemFlag... itemFlags) {
-        this.itemFlags = itemFlags;
+        List<ItemFlag> list = Arrays.asList(itemFlags);
+        this.itemFlags = () -> list;
 
         return this;
     }
@@ -217,65 +242,98 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public FrameworkButton setIconSupplier(Supplier<GuiIcon> iconSupplier) {
-        this.iconSupplier = iconSupplier;
+        Objects.requireNonNull(iconSupplier);
+        this.icon = iconSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setAmountSupplier(Supplier<Integer> amountSupplier) {
-        this.amountSupplier = amountSupplier;
+        Objects.requireNonNull(amountSupplier);
+        this.amount = amountSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setNameSupplier(Supplier<GuiString> nameSupplier) {
-        this.nameSupplier = nameSupplier;
+        Objects.requireNonNull(nameSupplier);
+        this.name = nameSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setLoreSupplier(Supplier<List<GuiString>> loreSupplier) {
-        this.loreSupplier = loreSupplier;
+        Objects.requireNonNull(loreSupplier);
+        this.lore = loreSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setGlowingSupplier(Supplier<Boolean> glowingSupplier) {
-        this.glowingSupplier = glowingSupplier;
+        Objects.requireNonNull(glowingSupplier);
+        this.glowing = glowingSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setClickSoundSupplier(Supplier<Sound> clickSoundSupplier) {
-        this.clickSoundSupplier = clickSoundSupplier;
+        Objects.requireNonNull(clickSoundSupplier);
+        this.clickSound = clickSoundSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setClickSoundSupplier(Supplier<Sound> clickSoundSupplier, float volume, float pitch) {
-        this.clickSoundSupplier = clickSoundSupplier;
-        this.clickVolume = volume;
-        this.clickPitch = pitch;
+        Objects.requireNonNull(clickSoundSupplier);
+        this.clickSound = clickSoundSupplier;
+        this.clickVolume = () -> volume;
+        this.clickPitch = () -> pitch;
+
+        return this;
+    }
+
+    @Override
+    public FrameworkButton setClickVolumeSupplier(Supplier<Float> clickVolumeSupplier) {
+        Objects.requireNonNull(clickVolumeSupplier);
+        this.clickVolume = clickVolumeSupplier;
+
+        return this;
+    }
+
+    @Override
+    public FrameworkButton setClickPitchSupplier(Supplier<Float> clickPitchSupplier) {
+        Objects.requireNonNull(clickPitchSupplier);
+        this.clickVolume = clickPitchSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setVisibilitySupplier(Supplier<Boolean> visibilitySupplier) {
-        this.visibilitySupplier = visibilitySupplier;
+        Objects.requireNonNull(visibilitySupplier);
+        this.visibility = visibilitySupplier;
+
+        return this;
+    }
+
+    @Override
+    public GuiButton setHiddenReplacementSupplier(Supplier<ItemStack> hiddenReplacementSupplier) {
+        Objects.requireNonNull(hiddenReplacementSupplier);
+        this.hiddenReplacement = hiddenReplacementSupplier;
 
         return this;
     }
 
     @Override
     public FrameworkButton setItemFlagsSupplier(Supplier<List<ItemFlag>> itemFlagsSupplier) {
-        this.itemFlagsSupplier = itemFlagsSupplier;
+        Objects.requireNonNull(itemFlagsSupplier);
+        this.itemFlags = itemFlagsSupplier;
 
         return this;
     }
@@ -286,44 +344,44 @@ public class FrameworkButton implements GuiButton {
 
     @NotNull
     private GuiIcon getIcon() {
-        return this.iconSupplier != null ? this.iconSupplier.get() : this.icon;
+        return this.icon.get();
     }
 
     private int getAmount() {
-        return this.amountSupplier != null ? this.amountSupplier.get() : this.amount;
+        return this.amount.get();
     }
 
     @NotNull
     private GuiString getName() {
-        return this.nameSupplier != null ? this.nameSupplier.get() : this.name;
+        return this.name.get();
     }
 
     @NotNull
     private List<GuiString> getLore() {
-        return this.loreSupplier != null ? this.loreSupplier.get() : this.lore;
+        return this.lore.get();
     }
 
     private boolean isGlowing() {
-        return this.glowingSupplier != null ? this.glowingSupplier.get() : this.glowing;
+        return this.glowing.get();
     }
 
     @Nullable
     private Sound getClickSound() {
-        return this.clickSoundSupplier != null ? this.clickSoundSupplier.get() : this.clickSound;
+        return this.clickSound.get();
     }
 
     private float getClickVolume() {
-        return this.clickVolume;
+        return this.clickVolume.get();
     }
 
     private float getClickPitch() {
-        return this.clickPitch;
+        return this.clickPitch.get();
     }
 
     @Override
     public boolean isVisible(int pageNumber, int maxPageNumber) {
-        if (this.visibilitySupplier != null)
-            return this.visibilitySupplier.get();
+        if (this.visibility != null)
+            return this.visibility.get();
 
         if (pageNumber == 1 && this.flags.contains(GuiButtonFlag.HIDE_IF_FIRST_PAGE))
             return false;
@@ -332,7 +390,7 @@ public class FrameworkButton implements GuiButton {
     }
 
     private ItemFlag[] getItemFlags() {
-        return this.itemFlagsSupplier != null ? this.itemFlagsSupplier.get().toArray(new ItemFlag[0]) : this.itemFlags;
+        return this.itemFlags.get().toArray(new ItemFlag[0]);
     }
 
     //endregion
@@ -345,7 +403,7 @@ public class FrameworkButton implements GuiButton {
     @Override
     public ItemStack getItemStack(boolean isVisible) {
         if (!isVisible)
-            return this.hiddenReplacement;
+            return this.hiddenReplacement == null ? null : this.hiddenReplacement.get();
 
         ItemStack itemStack = this.itemStack;
         FrameworkIcon icon = (FrameworkIcon) this.getIcon();
@@ -425,9 +483,9 @@ public class FrameworkButton implements GuiButton {
 
     @Override
     public void tick() {
-        this.icon.tick();
-        this.name.tick();
-        this.lore.forEach(GuiString::tick);
+        this.icon.get().tick();
+        this.name.get().tick();
+        this.lore.get().forEach(GuiString::tick);
     }
 
 }

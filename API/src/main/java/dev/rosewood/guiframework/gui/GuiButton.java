@@ -55,10 +55,19 @@ public interface GuiButton extends Tickable, Slotable {
     GuiButton setClickSound(@NotNull Sound sound, float volume, float pitch);
 
     @NotNull
+    GuiButton setClickVolume(float volume);
+
+    @NotNull
+    GuiButton setClickPitch(float pitch);
+
+    @NotNull
     GuiButton setClickAction(@NotNull Function<InventoryClickEvent, ClickAction> onClick, @NotNull ClickActionType... clickActionTypes);
 
     @NotNull
     GuiButton setFlags(@NotNull GuiButtonFlag... flags);
+
+    @NotNull
+    GuiButton setVisibility(@Nullable Boolean visibility);
 
     @NotNull
     GuiButton setHiddenReplacement(@Nullable ItemStack itemStack);
@@ -92,10 +101,19 @@ public interface GuiButton extends Tickable, Slotable {
     GuiButton setClickSoundSupplier(@NotNull Supplier<Sound> clickSoundSupplier, float volume, float pitch);
 
     @NotNull
+    GuiButton setClickVolumeSupplier(@NotNull Supplier<Float> clickVolumeSupplier);
+
+    @NotNull
+    GuiButton setClickPitchSupplier(@NotNull Supplier<Float> clickpitchSupplier);
+
+    @NotNull
     GuiButton setVisibilitySupplier(@NotNull Supplier<Boolean> visibilitySupplier);
 
     @NotNull
-    GuiButton setItemFlagsSupplier(Supplier<List<ItemFlag>> itemFlagsSupplier);
+    GuiButton setHiddenReplacementSupplier(@NotNull Supplier<ItemStack> hiddenReplacementSupplier);
+
+    @NotNull
+    GuiButton setItemFlagsSupplier(@NotNull Supplier<List<ItemFlag>> itemFlagsSupplier);
 
     //endregion
 
