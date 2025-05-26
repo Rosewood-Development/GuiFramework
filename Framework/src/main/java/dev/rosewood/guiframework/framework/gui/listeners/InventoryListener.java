@@ -134,6 +134,11 @@ public class InventoryListener implements Listener {
         if (clickedContainer == null || clickedScreen == null)
             return;
 
+        if (clickedContainer.preventsItemDropping() && (event.getClick() == ClickType.DROP || event.getClick() == ClickType.CONTROL_DROP)) {
+            event.setCancelled(true);
+            return;
+        }
+
         // Handle shift clicking from the bottom inventory to the top
         FrameworkScreenSection editableSection = clickedScreen.getEditableSection();
         if (clickedInventory == bottomInventory && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
