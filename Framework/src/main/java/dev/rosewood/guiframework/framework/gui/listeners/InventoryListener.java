@@ -29,8 +29,8 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
@@ -38,9 +38,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class InventoryListener implements Listener {
 
-    private FrameworkManager guiManager;
-    private List<ClickType> validEditClickTypes, validButtonClickTypes;
-    private List<InventoryAction> validEditInventoryActions, validButtonInventoryActions;
+    private final FrameworkManager guiManager;
+    private final List<ClickType> validEditClickTypes, validButtonClickTypes;
+    private final List<InventoryAction> validEditInventoryActions, validButtonInventoryActions;
+    private final InventoryViewHandler inventoryViewAdapter;
 
     public InventoryListener(FrameworkManager guiManager) {
         this.guiManager = guiManager;
@@ -48,12 +49,13 @@ public class InventoryListener implements Listener {
         this.validButtonClickTypes = Arrays.asList(ClickType.LEFT, ClickType.MIDDLE, ClickType.RIGHT, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
         this.validEditInventoryActions = Arrays.asList(InventoryAction.CLONE_STACK, InventoryAction.DROP_ALL_CURSOR, InventoryAction.DROP_ALL_SLOT, InventoryAction.DROP_ONE_CURSOR, InventoryAction.DROP_ONE_SLOT, InventoryAction.MOVE_TO_OTHER_INVENTORY, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME, InventoryAction.PLACE_ALL, InventoryAction.PLACE_ONE, InventoryAction.PLACE_SOME, InventoryAction.SWAP_WITH_CURSOR);
         this.validButtonInventoryActions = Arrays.asList(InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF, InventoryAction.PICKUP_ONE, InventoryAction.PICKUP_SOME, InventoryAction.MOVE_TO_OTHER_INVENTORY);
+        this.inventoryViewAdapter = InventoryViewAdapter.getHandler();
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryItemDrag(InventoryDragEvent event) {
         // Make sure drags are only a part of either the player's inventory or the editable section of the gui
-        Inventory inventory = InventoryViewAdapter.getHandler().getView(event).getTopInventory();
+        Inventory inventory = this.inventoryViewAdapter.getView(event).getTopInventory();
         FrameworkContainer clickedContainer = this.getGuiContainer(inventory);
         FrameworkScreen clickedScreen = this.getGuiScreen(inventory);
         if (clickedContainer == null || clickedScreen == null || !(event.getWhoClicked() instanceof Player))
@@ -68,7 +70,7 @@ public class InventoryListener implements Listener {
                 event.setCancelled(true);
 
             // Check if we dragged into non-editable slots
-            InventoryViewWrapper view = InventoryViewAdapter.getHandler().getView(event);
+            InventoryViewWrapper view = this.inventoryViewAdapter.getView(event);
             Map<Integer, ItemStack> newItems = event.getNewItems();
             Map<Integer, ItemStack> rejectedItems = new HashMap<>();
             for (int slot : newItems.keySet()) {
@@ -112,8 +114,7 @@ public class InventoryListener implements Listener {
                 });
             }
         } else {
-            InventoryViewHandler handler = InventoryViewAdapter.getHandler();
-            boolean draggedIntoTop = event.getInventorySlots().stream().anyMatch(x -> handler.getView(event).getSlotType(x) == SlotType.CONTAINER);
+            boolean draggedIntoTop = event.getInventorySlots().stream().anyMatch(x -> this.inventoryViewAdapter.getView(event).getSlotType(x) == SlotType.CONTAINER);
             if (draggedIntoTop)
                 event.setCancelled(true);
         }
@@ -121,7 +122,7 @@ public class InventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        InventoryViewWrapper view = InventoryViewAdapter.getHandler().getView(event);
+        InventoryViewWrapper view = this.inventoryViewAdapter.getView(event);
         Inventory topInventory = view.getTopInventory();
         Inventory bottomInventory = view.getBottomInventory();
         Inventory clickedInventory = event.getClickedInventory();
@@ -275,6 +276,14 @@ public class InventoryListener implements Listener {
         this.forceCloseActiveGuis(event.getPlayer());
     }
 
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onItemDrop(PlayerDropItemEvent event) {
+        Inventory inventory = this.inventoryViewAdapter.getOpenInventory(event.getPlayer()).getTopInventory();
+        FrameworkContainer openContainer = this.getGuiContainer(inventory);
+        if (openContainer != null && openContainer.preventsItemDropping())
+            event.setCancelled(true);
+    }
+
     /**
      * Remove the player from any containers they may be viewing
      *
@@ -305,7 +314,7 @@ public class InventoryListener implements Listener {
      */
     private void runClose(Player player, Inventory inventory) {
         FrameworkContainer eventContainer = this.getGuiContainer(inventory);
-        FrameworkContainer playerContainer = this.getGuiContainer(InventoryViewAdapter.getHandler().getOpenInventory(player).getTopInventory());
+        FrameworkContainer playerContainer = this.getGuiContainer(this.inventoryViewAdapter.getOpenInventory(player).getTopInventory());
         if (eventContainer == null || playerContainer != null)
             return;
 

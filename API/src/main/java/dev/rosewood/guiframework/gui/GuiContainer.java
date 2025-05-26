@@ -16,6 +16,9 @@ public interface GuiContainer extends Tickable {
     GuiContainer setTickRate(int tickRate);
 
     @NotNull
+    GuiContainer preventItemDropping(boolean disable);
+
+    @NotNull
     GuiContainer addScreen(@NotNull GuiScreen screen);
 
     void openFor(@NotNull Player player);
@@ -31,6 +34,8 @@ public interface GuiContainer extends Tickable {
     boolean isPersistent();
 
     int getTickRate();
+
+    boolean preventsItemDropping();
 
     @NotNull
     Map<UUID, GuiView> getCurrentViewers();

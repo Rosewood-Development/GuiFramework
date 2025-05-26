@@ -18,15 +18,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class FrameworkContainer implements GuiContainer {
 
-    private Map<UUID, FrameworkView> currentViewers;
-    private Map<Integer, GuiScreen> screens;
-    private boolean persistent;
+    private final Map<UUID, FrameworkView> currentViewers;
+    private final Map<Integer, GuiScreen> screens;
+    private boolean persistent, preventItemDropping;
     private int tickRate, currentTick;
 
     public FrameworkContainer() {
         this.currentViewers = new HashMap<>();
         this.screens = new HashMap<>();
         this.persistent = false;
+        this.preventItemDropping = false;
         this.tickRate = -1;
         this.currentTick = 0;
     }
@@ -41,6 +42,13 @@ public class FrameworkContainer implements GuiContainer {
     @Override
     public FrameworkContainer setTickRate(int tickRate) {
         this.tickRate = tickRate;
+
+        return this;
+    }
+
+    @Override
+    public GuiContainer preventItemDropping(boolean disable) {
+        this.preventItemDropping = disable;
 
         return this;
     }
@@ -226,6 +234,11 @@ public class FrameworkContainer implements GuiContainer {
 
     public int getTickRate() {
         return this.tickRate;
+    }
+
+    @Override
+    public boolean preventsItemDropping() {
+        return this.preventItemDropping;
     }
 
     /**
